@@ -1,58 +1,764 @@
-"""Dashboard académico de Automotora Viña del Mar, servido con Flask."""
-
 import csv
 import io
 
-from flask import Flask, Response, jsonify, render_template_string
+from flask import Flask, Response, render_template_string
 
-app = Flask(__name__, static_folder=None)
+app = Flask(__name__)
 
-PAGINA = '<!doctype html>\n<html lang="es">\n<head>\n  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width,initial-scale=1">\n  <meta name="description" content="Panel estratégico académico de Automotora Viña del Mar. Explora seis indicadores y sus metas.">\n  <title>AVDM · Dashboard estratégico</title>\n  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 48 48\'%3E%3Crect width=\'48\' height=\'48\' rx=\'12\' fill=\'%230f766e\'/%3E%3Cpath d=\'m10 32 11-17h6l11 17h-8l-2-4H19l-2 4zm12-10h3l-1.5-3z\' fill=\'white\'/%3E%3C/svg%3E">\n<style>\n@import url(\'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;650;700;750;800&display=swap\');\n\n:root{--bg:#f6f8fa;--paper:#fff;--ink:#172b3a;--muted:#697987;--line:#e3e9ed;--teal:#107c72;--teal-dark:#08645d;--teal-light:#e9f5f1;--amber:#a26116;--amber-light:#fff5e7;--font:\'DM Sans\',Arial,sans-serif;--heading:\'Manrope\',Arial,sans-serif}\n*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:90px}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 var(--font)}button,input,select{font:inherit}button,a,select,input{-webkit-tap-highlight-color:transparent}button,a{touch-action:manipulation}button{cursor:pointer}a{color:inherit;text-decoration:none}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #39a69b;outline-offset:4px}button{color:inherit}h1,h2,h3,p{margin:0}h1,h2,h3{font-family:var(--heading);line-height:1.25}button{border:0}select{cursor:pointer} [hidden]{display:none!important}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.skip{position:fixed;top:8px;left:8px;padding:10px 15px;background:white;z-index:10;transform:translateY(-160%)}.skip:focus{transform:none}\n.sidebar{width:232px;background:#fff;border-right:1px solid var(--line);position:fixed;inset:0 auto 0 0;display:flex;flex-direction:column;padding:32px 20px;z-index:4}.brand{display:flex;align-items:center;gap:11px;font:800 23px var(--heading);letter-spacing:-1px;padding:0 8px}.brand-mark{width:42px;height:44px;background:var(--teal);color:#fff;border-radius:12px;display:grid;place-content:center;position:relative;font-size:30px}.brand-mark span{font-size:16px;position:absolute;top:0;right:2px;color:#c5ece1}.brand small{display:block;font:600 7px var(--font);letter-spacing:1.3px;margin-top:4px;color:var(--muted)}.sidebar-label{font-size:9px;letter-spacing:1.5px;color:#85919c;font-weight:700;margin:49px 12px 13px}.sidebar nav{display:grid;gap:7px}.nav-link{padding:12px 13px;border-radius:8px;display:flex;align-items:center;gap:13px;color:#647684;font-size:12px;font-weight:600}.nav-link>span{font-size:20px;line-height:1}.nav-link.active{background:var(--teal-light);color:var(--teal-dark)}.nav-link:hover{background:#f2f6f5}.nav-link b{font-size:9px;background:#fff;border:1px solid #e1e9e7;margin-left:auto;padding:1px 5px;border-radius:4px}.sidebar-bottom{margin-top:auto;padding:25px 12px 0;border-top:1px solid var(--line)}.case-icon{border:1px solid var(--line);border-radius:9px;width:36px;height:36px;display:grid;place-content:center;font-weight:700;font-size:11px;margin-bottom:14px}.sidebar-bottom>strong{font-size:11px;display:block}.sidebar-bottom p{font-size:10px;color:var(--muted);margin:4px 0 15px}.academic{font-size:8px;letter-spacing:1px;background:#f0f3f5;padding:6px 8px;border-radius:4px;font-weight:700;color:#586a78}.sidebar-foot{color:#8b969f;font-size:10px;line-height:1.7;margin-top:25px}\n.workspace{margin-left:232px}.topbar{height:78px;padding:0 40px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--muted)}.topbar>div>span{margin:0 12px;color:#b4bfc6}.topbar strong{font-weight:500;color:var(--ink)}.topbar-right{display:flex;align-items:center;gap:22px}.source-badge{display:flex;align-items:center;gap:7px;font-size:10px}.source-badge i{width:6px;height:6px;border-radius:50%;background:#7d8f9d}.avatar{width:31px;height:31px;background:#edf3f5;border:1px solid #e0e8eb;display:grid;place-content:center;border-radius:50%;font-size:10px;font-weight:700}.topbar .topbar-right>span{margin:0;color:var(--muted)}main{max-width:1520px;margin:auto;padding:36px 40px 0}.hero{display:flex;justify-content:space-between;gap:24px;align-items:center}.eyebrow{font-size:9px;font-weight:700;letter-spacing:1.6px;color:var(--teal);margin-bottom:10px}.hero h1{font-size:clamp(25px,2.4vw,37px);font-weight:800;letter-spacing:-1.6px}.hero h1>span{color:var(--teal)}.hero-sub{font-size:12px;color:var(--muted);margin-top:11px}.hero-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.horizon{font-size:10px;color:var(--muted);margin-right:8px;white-space:nowrap}.horizon strong{color:var(--ink);margin-left:5px}.button{display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid #dce4e9;background:#fff;padding:10px 13px;border-radius:7px;font-size:10px;font-weight:700;white-space:nowrap;min-height:37px}.button:hover{background:#f0f5f4}.button>span{font-size:15px}.button.primary{background:var(--teal);border-color:var(--teal);color:#fff;box-shadow:0 3px 7px #107c7215}.button.primary:hover{background:var(--teal-dark)}.context-note{display:flex;gap:10px;align-items:center;color:#556e77;background:#edf3f4;border:1px solid #e1eaed;border-radius:8px;padding:11px 14px;font-size:10px;margin-top:25px}.context-note strong{font-weight:700}.info-icon{border:1px solid #8aa5ae;border-radius:50%;min-width:14px;height:14px;display:grid;place-content:center;font:700 9px Georgia,serif}\n.summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin:24px 0 37px}.summary-card{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:19px 19px 17px}.summary-label{display:flex;justify-content:space-between;align-items:center;gap:5px;font-size:8px;font-weight:700;letter-spacing:.65px;color:#6c7c88}.summary-label>span{font-size:16px;color:var(--muted);font-weight:400}.summary-card>strong{display:block;font:750 36px/1.15 var(--heading);letter-spacing:-1.5px;margin:14px 0 10px}.summary-card strong small{font-size:17px;color:#a1adb6;letter-spacing:-.5px;font-weight:500}.summary-card p{font-size:9px;color:var(--muted)}.green{color:var(--teal)!important}.amber{color:var(--amber)!important}.slate{color:#728697!important}.mini-dot{display:inline-block;width:5px;height:5px;border-radius:50%;margin-right:4px;vertical-align:middle}.green-bg{background:var(--teal)}.amber-bg{background:#c28b43}.section-title{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:22px}.section-title .eyebrow{margin-bottom:6px}.section-title h2{font-size:20px;font-weight:750;letter-spacing:-.65px}.subtle{font-size:10px;color:#7f8e9a}.subtle>span{margin-left:5px}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px}.tabs{display:flex;padding:4px;background:#eaf0f2;border:1px solid #e2e8ec;border-radius:8px;gap:3px}.tab{background:transparent;padding:7px 13px;font-size:10px;border-radius:5px;color:#74838e;font-weight:600;white-space:nowrap}.tab.selected{color:var(--ink);background:#fff;box-shadow:0 1px 4px #172b3a0c}.tab:hover{color:var(--teal)}.tab span{font-size:9px;background:#edf2f2;padding:1px 5px;border-radius:3px;margin-left:4px;color:#71818c}.filter-inputs{display:flex;align-items:center;gap:9px}.search{display:flex;align-items:center;background:#fff;border:1px solid var(--line);padding:0 10px;border-radius:7px;height:35px;gap:7px}.search>span:first-child{font-size:20px;color:#8a98a2}.search input{min-width:0;width:155px;border:0;background:transparent;font-size:10px;outline:none}.search:focus-within{outline:2px solid var(--teal);outline-offset:2px}select{border:1px solid var(--line);background:#fff;color:#596d7b;border-radius:7px;padding:8px 26px 8px 9px;font-size:10px;max-width:100%;min-height:35px}.result-line{display:flex;align-items:center;gap:12px;min-height:34px;font-size:9px;color:#84919c}.text-button{padding:3px;background:none;font-size:9px;color:var(--teal);text-decoration:underline}.indicator-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.indicator{appearance:none;width:100%;text-align:left;border:1px solid var(--line);border-radius:11px;background:#fff;padding:20px 21px 17px;display:flex;flex-direction:column;position:relative;transition:transform .18s,border-color .18s,box-shadow .18s;min-height:236px;overflow:hidden}.indicator:hover{transform:translateY(-3px);border-color:#a9cec6;box-shadow:0 9px 25px #1e544c09}.card-category{color:#7d8e98;text-transform:uppercase;font-size:8px;letter-spacing:1.3px;font-weight:700;display:flex;align-items:center;gap:6px}.card-category>span{font-size:12px;color:var(--teal)}.card-arrow{position:absolute;right:20px;top:17px;color:#aebac1;font-size:17px}.indicator h3{font-size:12px;font-weight:650;margin:12px 0 16px;min-height:30px;max-width:90%;line-height:1.4}.card-value{font:750 31px/1.1 var(--heading);letter-spacing:-1px;white-space:nowrap}.card-value.pending{font-size:25px;color:#82909a}.card-context{font-size:9px;color:#85939d;margin:8px 0 20px;line-height:1.5}.card-bottom{margin-top:auto;padding-top:12px;border-top:1px solid #eef1f4;display:flex;align-items:center;justify-content:space-between;gap:8px}.target-label{display:grid;gap:2px;font-size:8px;color:#87949d}.target-label strong{font-size:11px;font-weight:600;color:#304c5b}.status{font-size:8px;font-weight:600;border-radius:5px;padding:4px 7px;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}.status:before{content:\'\';display:block;width:4px;height:4px;border-radius:50%;background:currentColor}.status.brecha{color:var(--amber);background:var(--amber-light)}.status.umbral{color:var(--teal);background:var(--teal-light)}.status.pendiente{color:#718394;background:#edf2f6}.empty{text-align:center;padding:45px;background:#fff;border:1px dashed var(--line);border-radius:12px}.empty>span{font-size:34px;color:var(--teal)}.empty h3{font-size:18px;margin:8px 0}.empty p{color:var(--muted);font-size:12px;margin:0 0 20px}\n.analysis-grid{display:grid;grid-template-columns:1.12fr 1fr;gap:19px;margin-top:30px}.panel{border:1px solid var(--line);border-radius:12px;background:#fff;padding:24px}.panel-head{display:flex;justify-content:space-between;align-items:start}.panel-head h2{font-size:18px;letter-spacing:-.5px;font-weight:750}.panel-head .eyebrow{font-size:8px;margin-bottom:6px}.panel-icon{color:#93a6af;font-size:22px}.chart-select-label{display:block;font-size:9px;color:var(--muted);margin:23px 0 6px}.chart-select{font-size:11px;width:100%;background:#fafcfc;height:37px}.bar-chart{margin-top:23px;min-height:138px}.bar-row{margin-bottom:19px}.bar-label{display:flex;justify-content:space-between;font-size:10px;color:#7c8b95;margin-bottom:8px}.bar-label strong{font-size:12px;color:#2a4654}.bar-track{width:100%;height:13px;background:#f0f4f5;border-radius:3px;overflow:hidden}.bar-fill{height:100%;background:#2a8c80;border-radius:3px;min-width:3px;animation:grow .4s ease-out}.bar-fill.target{background:#accfc8}.gap-copy{font-size:10px;color:var(--teal-dark);background:#f0f7f4;border-radius:5px;padding:8px 10px;margin-top:6px}.chart-foot{display:flex;gap:18px;flex-wrap:wrap;font-size:8px;color:#7a8c95;margin-top:12px}.chart-foot>span{display:inline-flex;align-items:center;gap:5px}.legend-dot{display:inline-block;width:7px;height:7px;border-radius:2px}.legend-dot.reference{background:#2a8c80}.legend-dot.target{background:#accfc8}.chart-caption{font-size:8px;color:#98a3ab;margin-top:12px}.no-data-chart{font-size:12px;color:var(--muted);padding:20px 0;line-height:1.7}.panel-sub{font-size:10px;color:#81909b;margin-top:11px;margin-bottom:18px}.priority{display:flex;align-items:start;gap:13px;background:transparent;text-align:left;width:100%;padding:14px 0;border-top:1px solid #edf1f3}.priority-number{color:#5b8f87;background:#f0f6f4;border-radius:6px;width:29px;height:29px;display:grid;place-content:center;font-size:9px;flex-shrink:0}.priority strong{font-size:11px;display:block;font-weight:600;margin-top:1px}.priority small{font-size:9px;display:block;color:#87959f;margin-top:4px;line-height:1.6}.priority-arrow{margin-left:auto;color:#9aadb4;font-size:16px}.priority:hover strong{color:var(--teal)}.priority-note{display:flex;gap:8px;background:#f5f8fa;border-radius:6px;font-size:9px;padding:10px;margin-top:8px;color:#7b8e9c}.priority-note>span{color:var(--teal)}footer{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:27px 0 24px;color:#93a0a9;font-size:9px}footer strong{color:#69818d;font-size:10px;letter-spacing:1px;margin-right:4px}footer p:last-child{text-align:right;font-size:8px;line-height:1.7}\ndialog{padding:28px;border:1px solid var(--line);border-radius:17px;max-width:540px;width:calc(100% - 28px);color:var(--ink);box-shadow:0 28px 100px #0a2f4330;max-height:90dvh;overflow-y:auto}dialog::backdrop{background:#122b3d65;backdrop-filter:blur(4px)}.modal-head{display:flex;align-items:center;justify-content:space-between;gap:15px}.modal-head .eyebrow{margin:0}.close-button{background:#f0f4f5;border-radius:50%;width:32px;height:32px;font-size:23px;color:#778b97}.close-button:hover{background:#e2ecea}dialog h2{font-size:25px;letter-spacing:-.8px;margin:14px 0}.detail-description{font-size:12px;color:#708492;line-height:1.8}.detail-numbers{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin:23px 0 10px;border:1px solid var(--line);background:#f9fbfb;padding:18px;border-radius:9px}.detail-numbers span{display:block;font-size:8px;font-weight:700;letter-spacing:.8px;color:#83949f}.detail-numbers strong{display:block;font:750 26px var(--heading);letter-spacing:-.8px;margin-top:7px}.detail-numbers>div:last-child strong{color:var(--teal)}.detail-gap{font-size:11px;color:var(--teal);margin:10px 0 22px}.action-box{padding:17px;background:var(--teal-light);border-radius:9px;color:#47695f;font-size:12px;line-height:1.7}.action-box .eyebrow{font-size:8px;margin-bottom:7px}.detail-meta{font-size:11px;padding:10px 0}.detail-meta>div{display:flex;justify-content:space-between;gap:20px;margin:12px 0}.detail-meta dt{color:#81929e}.detail-meta dd{margin:0;text-align:right;font-weight:600}.detail-disclaimer{font-size:9px;line-height:1.7;border-top:1px solid var(--line);padding-top:14px;color:#91a0a8}@keyframes grow{from{transform:scaleX(0);transform-origin:left}to{transform:scaleX(1);transform-origin:left}}\n@media(min-width:1600px){main{padding-top:45px}.indicator{min-height:254px}.card-value{font-size:36px}}\n@media(max-width:1250px){.sidebar{width:205px;padding:27px 15px}.workspace{margin-left:205px}main{padding:28px 25px 0}.topbar{padding:0 25px}.hero{align-items:start}.hero-actions{max-width:230px}.horizon{width:100%;text-align:right;margin:0 0 3px}.hero h1{font-size:29px}.summary-grid{gap:10px}.summary-card{padding:16px 13px}.summary-label{font-size:7px}.summary-card p{font-size:8px}.toolbar{flex-wrap:wrap}.subtle{font-size:9px}.indicator{padding:18px 16px}.card-value{font-size:28px}.card-bottom{flex-wrap:wrap}.status{margin-left:auto}.panel{padding:20px}.panel-head h2{font-size:16px}.priority{gap:9px}.priority strong{font-size:10px}}\n@media(max-width:980px){.sidebar{width:180px;padding-left:12px;padding-right:12px}.workspace{margin-left:180px}.brand{font-size:21px;padding:0 4px}.brand small{font-size:6px}.brand-mark{width:35px;height:38px}.sidebar-label{font-size:8px;margin-left:8px}.nav-link{font-size:10px;padding:11px 8px;gap:9px}.sidebar-bottom{padding:20px 7px 0}.hero{flex-wrap:wrap;gap:17px}.hero-actions{max-width:none;justify-content:start}.horizon{width:auto;text-align:left;margin-right:10px}.summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:28px}.summary-label{font-size:8px}.summary-card p{font-size:9px}.summary-card>strong{margin-top:9px;font-size:30px}.indicator-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.analysis-grid{grid-template-columns:1fr}.section-title{align-items:start}.subtle{display:none}.filter-inputs{flex:1}.search{flex:1}.search input{width:100%}.filter-inputs>label:last-child{flex-shrink:0}.priority strong{font-size:12px}.priority small{font-size:10px}.panel-head h2{font-size:19px}.comparison{min-height:350px}}\n@media(max-width:650px){html{scroll-padding-top:20px}.sidebar{position:static;width:100%;padding:15px 18px;border-right:0;border-bottom:1px solid var(--line);display:block}.brand{font-size:21px;gap:9px}.brand small{font-size:6px}.brand-mark{width:33px;height:35px;border-radius:9px;font-size:25px}.brand-mark span{font-size:13px}.sidebar-label,.sidebar-bottom{display:none}.sidebar nav{display:flex;gap:6px;margin-top:17px}.nav-link{padding:8px 9px;font-size:10px;gap:6px;flex:1;justify-content:center;white-space:nowrap}.nav-link>span{font-size:15px}.nav-link b{display:none}.workspace{margin-left:0}.topbar{height:50px;padding:0 18px;font-size:9px}.source-badge{font-size:8px}.topbar .topbar-right{gap:9px}.avatar{display:none}main{padding:25px 18px 0}.hero h1{font-size:28px;letter-spacing:-1.3px}.hero .eyebrow{font-size:8px}.hero-sub{font-size:11px}.hero-actions{width:100%;gap:7px}.horizon{margin-right:auto;font-size:9px}.button{font-size:9px;padding:8px 10px}.context-note{align-items:start;font-size:9px;line-height:1.8;margin-top:20px;padding:10px}.info-icon{margin-top:3px}.summary-grid{margin-top:18px;gap:9px}.summary-card{padding:14px 12px}.summary-label{font-size:6.5px;letter-spacing:.35px}.summary-label>span{font-size:12px}.summary-card>strong{font-size:29px}.summary-card p{font-size:8px;line-height:1.6}.summary-card strong small{font-size:15px}.section-title h2{font-size:19px}.section-title{margin-bottom:17px}.toolbar{gap:12px}.tabs{width:100%;justify-content:space-between}.tab{padding:7px 11px;font-size:10px}.filter-inputs{width:100%;gap:7px}.search{width:50%;padding:0 8px}.search input{font-size:9px}select{font-size:9px;padding-right:19px}.indicator-grid{gap:10px}.indicator{padding:15px 12px;min-height:245px}.card-arrow{right:11px;top:12px}.card-category{font-size:7px}.indicator h3{font-size:10px;min-height:42px;margin-bottom:11px;max-width:100%;padding-right:5px}.card-value{font-size:25px}.card-value.pending{font-size:22px}.card-context{font-size:8px;min-height:26px;margin-bottom:13px}.card-bottom{gap:7px;display:block}.target-label{font-size:7px}.target-label strong{font-size:10px}.status{font-size:7px;margin-top:8px;padding:3px 6px}.analysis-grid{margin-top:21px;gap:14px}.panel{padding:19px}.panel-head h2{font-size:18px}.panel-head .eyebrow{font-size:7px}.chart-caption{font-size:7px}.priority strong{font-size:10px}.priority small{font-size:9px}.priority-note{font-size:8px}.priority-number{width:25px;height:25px}.priority-arrow{font-size:13px}footer{align-items:start;padding-top:20px;font-size:7px;gap:10px}footer p:last-child{font-size:7px;max-width:61%}footer strong{display:block;font-size:9px;margin-bottom:2px}.detail-numbers{padding:12px;gap:9px}.detail-numbers strong{font-size:23px}.detail-numbers span{font-size:7px}dialog{padding:21px}.detail-meta{font-size:10px}}\n@media(max-width:350px){.indicator-grid{grid-template-columns:1fr}.indicator{min-height:210px}.card-bottom{display:flex}.status{margin:0}.card-context{min-height:0}.indicator h3{min-height:0}.hero h1{font-size:25px}.tabs .tab{padding:7px}.summary-label{font-size:6px}}\n@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}\n@media print{@page{size:A4;margin:12mm}.sidebar,.topbar,.hero-actions,.toolbar,.result-line,.subtle,.chart-select-label,.chart-select,.card-arrow,.priority-arrow,dialog,.skip{display:none!important}.workspace{margin:0}body{background:white;font-size:10px;print-color-adjust:exact;-webkit-print-color-adjust:exact}main{padding:0}.hero h1{font-size:27px}.summary-grid{grid-template-columns:repeat(4,1fr);gap:9px;margin:18px 0}.summary-card>strong{font-size:27px}.summary-card{padding:12px}.summary-label{font-size:6px}.summary-card p{font-size:7px}.context-note{margin-top:15px}.indicator-grid{grid-template-columns:repeat(3,1fr);gap:10px}.indicator{min-height:220px;break-inside:avoid;padding:15px}.indicator:hover{transform:none}.card-value{font-size:26px}.indicator h3{font-size:10px}.status{font-size:7px}.analysis-grid{grid-template-columns:1fr 1fr;gap:12px;margin-top:18px;break-inside:avoid}.panel{padding:15px}.panel-head h2{font-size:15px}.comparison{min-height:0}.bar-chart{margin-top:20px}.priority strong{font-size:9px}.priority small{font-size:8px}.priority-number{width:22px;height:22px}.priority-note{font-size:8px}footer{padding:15px 0}.eyebrow{font-size:7px}}\n\n</style>\n  <script id="datos" type="application/json">{{ indicadores | tojson }}</script>\n\n</head>\n<body>\n  <a class="skip" href="#contenido">Ir al contenido</a>\n  <aside class="sidebar" aria-label="Navegación principal">\n    <a class="brand" href="#resumen" aria-label="AVDM, inicio"><span class="brand-mark">A<span>↗</span></span><span>AVDM<small>INTELIGENCIA DE GESTIÓN</small></span></a>\n    <div class="sidebar-label">ESPACIO DE TRABAJO</div>\n    <nav>\n      <a class="nav-link active" href="#resumen"><span aria-hidden="true">▦</span> Vista general</a>\n      <a class="nav-link" href="#indicadores"><span aria-hidden="true">◫</span> Indicadores <b>06</b></a>\n      <a class="nav-link" href="#analisis"><span aria-hidden="true">↗</span> Análisis de brechas</a>\n    </nav>\n    <div class="sidebar-bottom"><div class="case-icon">AV</div><strong>Automotora Viña del Mar</strong><p>Control de gestión estratégico</p><span class="academic">CASO ACADÉMICO</span><div class="sidebar-foot">Referencias del caso<br>Horizonte propuesto · 2027</div></div>\n  </aside>\n\n  <div class="workspace">\n    <header class="topbar"><div>Control de gestión <span>/</span> <strong>Vista general</strong></div><div class="topbar-right"><span class="source-badge"><i></i> Datos del caso</span><span class="avatar" aria-label="Automotora Viña del Mar">AV</span></div></header>\n    <main id="contenido">\n      <section class="hero" id="resumen" aria-labelledby="titulo">\n        <div><p class="eyebrow">AUTOMOTORA VIÑA DEL MAR S.A.C.</p><h1 id="titulo">El negocio, en perspectiva<span>.</span></h1><p class="hero-sub">Seis indicadores para conectar crecimiento, rentabilidad y servicio.</p></div>\n        <div class="hero-actions"><span class="horizon">◎ Horizonte <strong>2027</strong></span><button class="button" id="imprimir" type="button"><span aria-hidden="true">↗</span> Imprimir</button><a class="button primary" href="{{ url_for(\'descargar\') }}"><span aria-hidden="true">↓</span> CSV completo</a></div>\n      </section>\n\n      <div class="context-note"><span class="info-icon" aria-hidden="true">i</span><p><strong>Una base para decidir.</strong> Las cifras son referencias del caso; las metas 2027 son propuestas académicas. El estándar de stock proviene del caso.</p></div>\n\n      <section class="summary-grid" aria-label="Resumen de comparación">\n        <div class="summary-card"><span class="summary-label">INDICADORES ESTRATÉGICOS <span>◫</span></span><strong>06</strong><p>3 financieros · 3 no financieros</p></div>\n        <div class="summary-card"><span class="summary-label">REFERENCIAS EN UMBRAL <span class="green">✓</span></span><strong>02 <small>/ 05</small></strong><p><span class="mini-dot green-bg"></span> Márgenes de repuestos y vehículos</p></div>\n        <div class="summary-card"><span class="summary-label">BRECHAS FRENTE A META <span class="amber">↗</span></span><strong>03</strong><p><span class="mini-dot amber-bg"></span> Oportunidades de mejora</p></div>\n        <div class="summary-card"><span class="summary-label">MEDICIÓN PENDIENTE <span class="slate">◷</span></span><strong>01</strong><p>Disponibilidad de stock solicitado</p></div>\n      </section>\n\n      <section id="indicadores" class="indicator-section" aria-labelledby="indicadores-titulo">\n        <div class="section-title"><div><p class="eyebrow">CUADRO DE MANDO</p><h2 id="indicadores-titulo">Los indicadores que importan</h2></div><span class="subtle">Selecciona una tarjeta para ver el detalle <span aria-hidden="true">↗</span></span></div>\n        <div class="toolbar">\n          <div class="tabs" role="group" aria-label="Filtrar por perspectiva"><button type="button" class="tab selected" data-category="Todas" aria-pressed="true">Todos <span>6</span></button><button type="button" class="tab" data-category="Finanzas" aria-pressed="false">Finanzas</button><button type="button" class="tab" data-category="Clientes" aria-pressed="false">Clientes</button><button type="button" class="tab" data-category="Procesos" aria-pressed="false">Procesos</button></div>\n          <div class="filter-inputs"><label class="search"><span aria-hidden="true">⌕</span><span class="sr-only">Buscar indicador</span><input id="buscar" type="search" placeholder="Buscar indicador…" autocomplete="off"></label><label><span class="sr-only">Filtrar por comparación</span><select id="estado"><option value="todos">Todos los estados</option><option value="brecha">Con brecha</option><option value="umbral">En umbral</option><option value="pendiente">Sin medición</option></select></label></div>\n        </div>\n        <div class="result-line" aria-live="polite"><span id="resultados">6 indicadores</span><button id="limpiar" class="text-button" type="button" hidden>Limpiar filtros</button></div>\n        <div class="indicator-grid" id="tarjetas"></div>\n        <div class="empty" id="vacio" hidden><span>⌕</span><h3>No encontramos indicadores</h3><p>Prueba otra búsqueda o limpia los filtros.</p><button class="button" type="button" id="restablecer">Mostrar todos</button></div>\n      </section>\n\n      <section class="analysis-grid" id="analisis" aria-label="Análisis de indicadores">\n        <article class="panel comparison"><div class="panel-head"><div><p class="eyebrow">REFERENCIA VS. OBJETIVO</p><h2>La distancia a la meta</h2></div><span class="panel-icon" aria-hidden="true">↗</span></div><label class="chart-select-label" for="comparar">Indicador a comparar</label><select id="comparar" class="chart-select">{% for item in indicadores %}<option value="{{ item.id }}">{{ item.nombre }}</option>{% endfor %}</select><div id="grafico" class="bar-chart" aria-live="polite"></div><div class="chart-foot"><span><i class="legend-dot reference"></i> Referencia del caso</span><span><i class="legend-dot target"></i> Meta / estándar</span></div><p class="chart-caption">Comparación puntual. El caso no incluye una serie histórica.</p></article>\n        <article class="panel priorities"><div class="panel-head"><div><p class="eyebrow">FOCO DE GESTIÓN</p><h2>Tres frentes para avanzar</h2></div><span class="panel-icon" aria-hidden="true">◎</span></div><p class="panel-sub">Lectura propuesta a partir de las brechas del caso.</p><button class="priority" type="button" data-detail="respuesta"><span class="priority-number">01</span><span><strong>Acelerar la respuesta comercial</strong><small>De un máximo de 48 h a una meta de 2 h.</small></span><span class="priority-arrow">↗</span></button><button class="priority" type="button" data-detail="mercado"><span class="priority-number">02</span><span><strong>Ganar participación de mercado</strong><small>De 10,08% a una meta propuesta de 11%.</small></span><span class="priority-arrow">↗</span></button><button class="priority" type="button" data-detail="postventa"><span class="priority-number">03</span><span><strong>Impulsar la postventa rentable</strong><small>De US$ 3,5 M a una meta de US$ 3,7 M al mes.</small></span><span class="priority-arrow">↗</span></button><div class="priority-note"><span aria-hidden="true">✦</span> Proteger los márgenes y medir el stock completa la visión.</div></article>\n      </section>\n      <footer><p><strong>AVDM</strong> · Dashboard estratégico</p><p>Fuente: Caso Automotora Viña del Mar S.A.C. y PDO Integral 1.<br>Consulta académica · Sin actualización automática.</p></footer>\n      <noscript><p class="context-note">Activa JavaScript para explorar los indicadores. Puedes descargar todas las referencias con el botón «CSV completo».</p></noscript>\n    </main>\n  </div>\n\n  <dialog id="detalle" aria-labelledby="detalle-titulo"><div class="modal-head"><span class="eyebrow" id="detalle-categoria"></span><button class="close-button" id="cerrar-detalle" type="button" aria-label="Cerrar detalle">×</button></div><h2 id="detalle-titulo"></h2><p class="detail-description" id="detalle-descripcion"></p><div class="detail-numbers"><div><span>REFERENCIA DEL CASO</span><strong id="detalle-valor"></strong></div><div><span id="detalle-plazo"></span><strong id="detalle-meta"></strong></div></div><p id="detalle-brecha" class="detail-gap"></p><div class="action-box"><p class="eyebrow">ACCIÓN SUGERIDA</p><p id="detalle-accion"></p></div><dl class="detail-meta"><div><dt>Responsable sugerido</dt><dd id="detalle-responsable"></dd></div><div><dt>Revisión propuesta</dt><dd>Mensual</dd></div></dl><p class="detail-disclaimer">Las referencias no representan una medición de 2027. Las metas son propuestas académicas; el stock usa el estándar del caso.</p></dialog>\n<script>\n"use strict";\n\nconst indicadores = JSON.parse(document.getElementById("datos").textContent);\nconst textosEstado = {brecha: "Con brecha", umbral: "En umbral", pendiente: "Sin medición"};\nconst categoriasIcono = {Finanzas: "↗", Clientes: "◎", Procesos: "◷"};\nconst formato = new Intl.NumberFormat("es-CL", {maximumFractionDigits: 2});\nconst filtro = {categoria: "Todas", busqueda: "", estado: "todos"};\nconst $ = (id) => document.getElementById(id);\nconst normalizar = (texto) => texto.normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toLowerCase();\n\nfunction brecha(item) {\n  if (item.valor === null) return "Sin medición actual: primero es necesario establecer la referencia de stock.";\n  const diferencia = Math.abs(item.meta - item.valor);\n  if (item.estado === "umbral") return "La referencia del caso se encuentra en el umbral propuesto. El desafío es protegerlo.";\n  if (item.unidad === "h") return `${formato.format(diferencia)} h de reducción para alcanzar el plazo propuesto (−${formato.format(100 * diferencia / item.valor)}%).`;\n  if (item.unidad === "%") return `${formato.format(diferencia)} puntos porcentuales separan la referencia de la meta.`;\n  return `US$ ${formato.format(diferencia)} M adicionales al mes para alcanzar la meta (+${formato.format(100 * diferencia / item.valor)}%).`;\n}\n\nfunction pintarTarjetas() {\n  const visibles = indicadores.filter((item) =>\n    (filtro.categoria === "Todas" || item.categoria === filtro.categoria) &&\n    (filtro.estado === "todos" || item.estado === filtro.estado) &&\n    normalizar(item.nombre + " " + item.categoria).includes(normalizar(filtro.busqueda))\n  );\n  $("tarjetas").replaceChildren(...visibles.map((item) => {\n    const tarjeta = document.createElement("button");\n    tarjeta.type = "button";\n    tarjeta.className = "indicator";\n    tarjeta.dataset.id = item.id;\n    tarjeta.setAttribute("aria-label", `${item.nombre}: ${item.etiqueta}. ${textosEstado[item.estado]}. Ver detalle`);\n    // Estos campos provienen exclusivamente de las referencias definidas en Python.\n    tarjeta.innerHTML = `<span class="card-category"><span aria-hidden="true">${categoriasIcono[item.categoria]}</span>${item.categoria}</span><span class="card-arrow" aria-hidden="true">↗</span><h3>${item.nombre}</h3><span class="card-value ${item.valor === null ? "pending" : ""}">${item.etiqueta}</span><span class="card-context">${item.contexto}</span><span class="card-bottom"><span class="target-label">${item.plazo}<strong>${item.meta_texto}</strong></span><span class="status ${item.estado}">${textosEstado[item.estado]}</span></span>`;\n    tarjeta.addEventListener("click", () => abrirDetalle(item.id));\n    return tarjeta;\n  }));\n  $("resultados").textContent = `${visibles.length} ${visibles.length === 1 ? "indicador" : "indicadores"} ${visibles.length === indicadores.length ? "en total" : "de 6"}`;\n  $("vacio").hidden = visibles.length !== 0;\n  $("limpiar").hidden = filtro.categoria === "Todas" && filtro.estado === "todos" && !filtro.busqueda;\n}\n\nfunction restablecer() {\n  filtro.categoria = "Todas";\n  filtro.busqueda = "";\n  filtro.estado = "todos";\n  $("buscar").value = "";\n  $("estado").value = "todos";\n  actualizarTabs();\n  pintarTarjetas();\n}\n\nfunction actualizarTabs() {\n  document.querySelectorAll("[data-category]").forEach((boton) => {\n    const seleccionado = boton.dataset.category === filtro.categoria;\n    boton.classList.toggle("selected", seleccionado);\n    boton.setAttribute("aria-pressed", String(seleccionado));\n  });\n}\n\nfunction abrirDetalle(id) {\n  const item = indicadores.find((indicador) => indicador.id === id);\n  if (!item) return;\n  $("detalle-categoria").textContent = `${item.categoria} · Detalle del indicador`;\n  $("detalle-titulo").textContent = item.nombre;\n  $("detalle-descripcion").textContent = item.descripcion;\n  $("detalle-valor").textContent = item.etiqueta;\n  $("detalle-plazo").textContent = item.plazo.toUpperCase();\n  $("detalle-meta").textContent = item.meta_texto;\n  $("detalle-brecha").textContent = brecha(item);\n  $("detalle-accion").textContent = item.accion;\n  $("detalle-responsable").textContent = item.responsable;\n  $("detalle").showModal();\n}\n\nfunction pintarGrafico() {\n  const item = indicadores.find((indicador) => indicador.id === $("comparar").value);\n  const grafico = $("grafico");\n  if (item.valor === null) {\n    grafico.innerHTML = `<p class="no-data-chart"><strong>Stock: una referencia por construir.</strong><br>El estándar del caso es &gt; 95%. No hay un valor actual para dibujar una comparación.</p>`;\n    return;\n  }\n  const maximo = Math.max(item.valor, item.meta) * 1.12;\n  grafico.innerHTML = `<div class="bar-row"><div class="bar-label"><span>Referencia del caso</span><strong>${item.etiqueta}</strong></div><div class="bar-track"><div class="bar-fill" style="width:${100 * item.valor / maximo}%"></div></div></div><div class="bar-row"><div class="bar-label"><span>${item.plazo}</span><strong>${item.meta_texto}</strong></div><div class="bar-track"><div class="bar-fill target" style="width:${100 * item.meta / maximo}%"></div></div></div><p class="gap-copy">${brecha(item)}</p>`;\n}\n\ndocument.querySelectorAll("[data-category]").forEach((boton) => {\n  boton.addEventListener("click", () => {\n    filtro.categoria = boton.dataset.category;\n    actualizarTabs();\n    pintarTarjetas();\n  });\n});\n$("buscar").addEventListener("input", (evento) => {filtro.busqueda = evento.target.value.trim(); pintarTarjetas();});\n$("estado").addEventListener("change", (evento) => {filtro.estado = evento.target.value; pintarTarjetas();});\n$("limpiar").addEventListener("click", restablecer);\n$("restablecer").addEventListener("click", restablecer);\n$("comparar").addEventListener("change", pintarGrafico);\n$("imprimir").addEventListener("click", () => window.print());\ndocument.querySelectorAll("[data-detail]").forEach((boton) => boton.addEventListener("click", () => abrirDetalle(boton.dataset.detail)));\n$("cerrar-detalle").addEventListener("click", () => $("detalle").close());\n$("detalle").addEventListener("click", (evento) => {\n  const caja = $("detalle").getBoundingClientRect();\n  if (evento.target === $("detalle") && (evento.clientX < caja.left || evento.clientX > caja.right || evento.clientY < caja.top || evento.clientY > caja.bottom)) $("detalle").close();\n});\nconst navegacion = document.querySelectorAll(".nav-link");\nconst observador = new IntersectionObserver((entradas) => {\n  const visible = entradas.filter((entrada) => entrada.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];\n  if (visible) navegacion.forEach((enlace) => {\n    const activo = enlace.getAttribute("href") === `#${visible.target.id}`;\n    enlace.classList.toggle("active", activo);\n    if (activo) enlace.setAttribute("aria-current", "location"); else enlace.removeAttribute("aria-current");\n  });\n}, {rootMargin: "-5% 0px -35% 0px", threshold: [0, 0.2, 0.6]});\n["resumen", "indicadores", "analisis"].forEach((id) => observador.observe($(id)));\npintarTarjetas();\npintarGrafico();\n\n</script>\n</body>\n</html>\n'
-
-# Referencias conservadas del dashboard original. No son datos en tiempo real.
-INDICADORES = [
-    dict(id="postventa", nombre="Ingresos de postventa", categoria="Finanzas", valor=3.5, meta=3.7, unidad="M USD", sentido="mayor", operador="≥", etiqueta="US$ 3,5 M", meta_texto="≥ US$ 3,7 M", contexto="Ventas mensuales aproximadas del caso", plazo="Meta mensual 2027", descripcion="Ingresos mensuales de la operación de postventa. Su crecimiento debe acompañarse de márgenes estables.", accion="Revisar capacidad del taller, retención de clientes y oportunidades de servicio.", responsable="Ventas y postventa"),
-    dict(id="repuestos", nombre="Margen de repuestos", categoria="Finanzas", valor=40, meta=40, unidad="%", sentido="mayor", operador="≥", etiqueta="40%", meta_texto="≥ 40%", contexto="Margen promedio indicado en el caso", plazo="Meta de protección", descripcion="Margen promedio de la venta de repuestos. La propuesta busca proteger la rentabilidad de esta línea.", accion="Revisar descuentos, costos de compra y mezcla de repuestos vendidos.", responsable="Postventa y finanzas"),
-    dict(id="vehiculos", nombre="Margen de vehículos nuevos", categoria="Finanzas", valor=12, meta=12, unidad="%", sentido="mayor", operador="≥", etiqueta="12%", meta_texto="≥ 12%", contexto="Margen promedio indicado en el caso", plazo="Meta de protección", descripcion="Margen promedio de los vehículos nuevos. El volumen de ventas debe sostener este umbral de rentabilidad.", accion="Evaluar promociones y descuentos antes de comprometer el margen.", responsable="Ventas y finanzas"),
-    dict(id="mercado", nombre="Participación de mercado", categoria="Clientes", valor=10.08, meta=11, unidad="%", sentido="mayor", operador="≥", etiqueta="10,08%", meta_texto="≥ 11%", contexto="Participación indicada en el caso", plazo="Meta al cierre de 2027", descripcion="Participación de la automotora en su mercado de referencia. La meta académica propone llegar al 11%.", accion="Revisar conversión comercial y captación de clientes en el mercado de referencia.", responsable="Ventas y marketing"),
-    dict(id="respuesta", nombre="Respuesta a cotizaciones web", categoria="Procesos", valor=48, meta=2, unidad="h", sentido="menor", operador="≤", etiqueta="48 h", meta_texto="≤ 2 h", contexto="Plazo máximo actual indicado en el caso", plazo="Meta a 12 meses", descripcion="Plazo máximo de respuesta a una cotización web. En este indicador, un valor menor es mejor.", accion="Asignar responsables de consultas, alertas de atención y seguimiento del plazo máximo.", responsable="Equipo comercial"),
-    dict(id="stock", nombre="Disponibilidad de stock solicitado", categoria="Clientes", valor=None, meta=95, unidad="%", sentido="mayor", operador=">", etiqueta="Por medir", meta_texto="> 95%", contexto="El caso no informa una medición actual", plazo="Estándar del caso", descripcion="Disponibilidad de los productos solicitados. El caso establece un estándar superior al 95%, pero no informa una medición actual.", accion="Medir solicitudes atendidas con stock disponible y documentar la base de cálculo.", responsable="Inventario y postventa"),
+# Referencias del caso y metas académicas.
+DATOS = [
+    {
+        "id": "postventa",
+        "nombre": "Ingresos de postventa",
+        "categoria": "Finanzas",
+        "valor": 3.5,
+        "meta": 3.7,
+        "unidad": "M USD",
+        "operador": "≥",
+        "texto": "US$ 3,5 M",
+        "meta_texto": "≥ US$ 3,7 M",
+        "contexto": "Ventas mensuales aproximadas del caso",
+        "plazo": "Meta mensual 2027",
+        "accion": "Revisar capacidad del taller, retención de clientes y oportunidades de servicio.",
+    },
+    {
+        "id": "repuestos",
+        "nombre": "Margen de repuestos",
+        "categoria": "Finanzas",
+        "valor": 40,
+        "meta": 40,
+        "unidad": "%",
+        "operador": "≥",
+        "texto": "40%",
+        "meta_texto": "≥ 40%",
+        "contexto": "Margen promedio indicado en el caso",
+        "plazo": "Meta de protección",
+        "accion": "Controlar descuentos, costos de compra y mezcla de repuestos vendidos.",
+    },
+    {
+        "id": "vehiculos",
+        "nombre": "Margen de vehículos nuevos",
+        "categoria": "Finanzas",
+        "valor": 12,
+        "meta": 12,
+        "unidad": "%",
+        "operador": "≥",
+        "texto": "12%",
+        "meta_texto": "≥ 12%",
+        "contexto": "Margen promedio indicado en el caso",
+        "plazo": "Meta de protección",
+        "accion": "Evaluar promociones y descuentos para proteger la rentabilidad.",
+    },
+    {
+        "id": "mercado",
+        "nombre": "Participación de mercado",
+        "categoria": "Clientes",
+        "valor": 10.08,
+        "meta": 11,
+        "unidad": "%",
+        "operador": "≥",
+        "texto": "10,08%",
+        "meta_texto": "≥ 11%",
+        "contexto": "Participación indicada en el caso",
+        "plazo": "Meta al cierre de 2027",
+        "accion": "Mejorar captación de clientes y conversión comercial.",
+    },
+    {
+        "id": "respuesta",
+        "nombre": "Respuesta a cotizaciones web",
+        "categoria": "Procesos",
+        "valor": 48,
+        "meta": 2,
+        "unidad": "h",
+        "operador": "≤",
+        "texto": "48 h",
+        "meta_texto": "≤ 2 h",
+        "contexto": "Plazo máximo actual indicado en el caso",
+        "plazo": "Meta a 12 meses",
+        "accion": "Asignar responsables, alertas y seguimiento de las consultas web.",
+    },
+    {
+        "id": "stock",
+        "nombre": "Disponibilidad de stock solicitado",
+        "categoria": "Clientes",
+        "valor": None,
+        "meta": 95,
+        "unidad": "%",
+        "operador": ">",
+        "texto": "Por medir",
+        "meta_texto": "> 95%",
+        "contexto": "El caso no informa una medición actual",
+        "plazo": "Estándar del caso",
+        "accion": "Medir las solicitudes atendidas con stock disponible y documentar su cálculo.",
+    },
 ]
 
 
-def estado(indicador):
-    valor, meta = indicador["valor"], indicador["meta"]
-    if valor is None:
+def obtener_estado(item):
+    if item["valor"] is None:
         return "pendiente"
-    if indicador["operador"] == ">":
-        cumple = valor > meta
+
+    if item["operador"] == "≤":
+        cumple = item["valor"] <= item["meta"]
+    elif item["operador"] == ">":
+        cumple = item["valor"] > item["meta"]
     else:
-        cumple = valor >= meta if indicador["sentido"] == "mayor" else valor <= meta
+        cumple = item["valor"] >= item["meta"]
+
     return "umbral" if cumple else "brecha"
 
 
-DATOS = [{**item, "estado": estado(item)} for item in INDICADORES]
+for indicador in DATOS:
+    indicador["estado"] = obtener_estado(indicador)
 
 
-@app.get("/")
-def inicio():
-    return render_template_string(PAGINA, indicadores=DATOS)
+PAGINA = r"""
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Dashboard estratégico de Automotora Viña del Mar">
+<title>AVDM · Dashboard estratégico</title>
+<style>
+:root{
+  --fondo:#f4f7fa;--papel:#fff;--texto:#172d3e;
+  --muted:#6d8090;--linea:#e2e9ef;--verde:#087f72;
+  --verde-claro:#e8f6f1;--ambar:#af6d18;
+  --ambar-claro:#fff4e2;--gris:#91a4b5;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--fondo);color:var(--texto);
+  font-family:Inter,"Segoe UI",Arial,sans-serif;font-size:14px}
+button,input,select{font:inherit}
+button,a,select{touch-action:manipulation}
+button{cursor:pointer;color:inherit}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,p{margin:0}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{
+  outline:3px solid #42b4a1;outline-offset:3px}
+[hidden]{display:none!important}
+.sidebar{position:fixed;inset:0 auto 0 0;width:220px;background:white;
+  border-right:1px solid var(--linea);padding:30px 20px;
+  display:flex;flex-direction:column}
+.brand{display:flex;align-items:center;gap:11px;font-size:24px;font-weight:800}
+.logo{background:var(--verde);color:white;border-radius:12px;
+  width:43px;height:43px;display:grid;place-items:center;font-size:27px}
+.brand small{display:block;font-size:8px;letter-spacing:1.8px;
+  color:var(--muted);margin-top:5px}
+.nav-title{font-size:9px;letter-spacing:1.5px;color:var(--muted);margin:44px 10px 15px}
+nav{display:grid;gap:8px}
+nav a{padding:13px 12px;border-radius:9px;color:var(--muted);font-size:12px}
+nav a:hover,nav a:first-child{color:var(--verde);background:var(--verde-claro)}
+.sidebar-bottom{margin-top:auto;border-top:1px solid var(--linea);
+  padding:20px 8px 0;font-size:11px;line-height:1.8}
+.sidebar-bottom p{color:var(--muted);font-size:10px}
+.sidebar-bottom span{display:inline-block;font-size:8px;margin-top:12px;
+  background:#eef3f6;padding:5px 8px;border-radius:5px;letter-spacing:1px}
+.workspace{margin-left:220px}
+.topbar{display:flex;justify-content:space-between;align-items:center;
+  height:72px;padding:0 35px;border-bottom:1px solid var(--linea);
+  background:#fff;font-size:11px;color:var(--muted)}
+.topbar strong{color:var(--texto)}
+.badge{background:#edf5f2;color:var(--verde);padding:7px 11px;
+  border-radius:20px;font-size:10px}
+main{max-width:1500px;padding:35px;margin:auto}
+.hero{display:flex;justify-content:space-between;gap:22px;align-items:center}
+.eyebrow{font-size:9px;letter-spacing:1.7px;font-weight:700;
+  color:var(--verde);margin-bottom:10px;text-transform:uppercase}
+h1{font-size:clamp(26px,3vw,39px);letter-spacing:-1.7px;line-height:1.15}
+h1 span{color:var(--verde)}
+.subtitle{color:var(--muted);font-size:12px;margin-top:12px;line-height:1.7}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.button{display:inline-flex;align-items:center;justify-content:center;
+  gap:8px;border:1px solid var(--linea);border-radius:8px;background:white;
+  padding:11px 15px;font-size:11px;font-weight:600;white-space:nowrap}
+.button:hover{background:#edf5f2}
+.button.primary{background:var(--verde);border-color:var(--verde);color:white}
+.notice{margin:25px 0;background:#eaf1f4;border:1px solid #dce7ec;
+  color:#597280;border-radius:9px;padding:13px 16px;font-size:11px;line-height:1.8}
+.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}
+.summary-card{background:white;border:1px solid var(--linea);
+  padding:20px;border-radius:12px}
+.summary-card span{font-size:9px;letter-spacing:1px;color:var(--muted)}
+.summary-card strong{display:block;font-size:36px;letter-spacing:-1.5px;margin:13px 0 8px}
+.summary-card p{font-size:10px;color:var(--muted);line-height:1.6}
+section{scroll-margin-top:25px}
+.section-head{display:flex;align-items:end;justify-content:space-between;
+  gap:20px;margin:34px 0 18px}
+.section-head h2{font-size:21px;letter-spacing:-.7px}
+.section-head p{font-size:10px;color:var(--muted)}
+.chart-grid{display:grid;grid-template-columns:.9fr 1.3fr;gap:18px}
+.panel{background:white;border:1px solid var(--linea);border-radius:13px;padding:23px;min-width:0}
+.panel h3{font-size:16px;letter-spacing:-.4px}
+.panel-sub{font-size:10px;color:var(--muted);line-height:1.7;margin-top:8px}
+.donut-wrap{display:flex;align-items:center;justify-content:center;gap:20px;margin-top:20px}
+.donut{width:190px;max-width:50%;flex-shrink:0}
+.donut svg{width:100%;height:auto;display:block}
+.legend{display:grid;gap:10px}
+.legend button{border:0;background:#f7f9fb;text-align:left;padding:9px 10px;
+  border-radius:7px;font-size:10px;display:flex;align-items:center;gap:8px}
+.legend button:hover{background:#eaf2f0}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
+.legend strong{margin-left:5px}
+.donut-note{font-size:9px;color:var(--muted);line-height:1.7;margin-top:18px}
+.bar-svg{width:100%;display:block;height:auto;margin-top:17px}
+.chart-legend{display:flex;justify-content:center;gap:18px;font-size:10px;
+  color:var(--muted);margin-top:7px}
+.chart-legend span{display:flex;align-items:center;gap:6px}
+.chart-legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.toolbar{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
+.tabs{display:flex;gap:4px;background:#e8eef2;padding:4px;border-radius:8px}
+.tab{border:0;background:transparent;padding:9px 13px;border-radius:5px;
+  font-size:11px;color:var(--muted)}
+.tab.active{background:white;color:var(--verde);box-shadow:0 1px 4px #17354710}
+.inputs{display:flex;gap:8px}
+input,select{border:1px solid var(--linea);background:white;border-radius:7px;
+  padding:10px 11px;color:var(--texto);font-size:11px;max-width:100%}
+input{width:190px}
+.result-line{display:flex;align-items:center;gap:12px;color:var(--muted);
+  font-size:10px;margin:15px 0}
+.text-button{border:0;background:transparent;color:var(--verde);
+  font-size:10px;text-decoration:underline}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.card{background:white;border:1px solid var(--linea);padding:21px;
+  border-radius:12px;text-align:left;display:flex;flex-direction:column;
+  min-height:245px;position:relative;transition:transform .18s,box-shadow .18s}
+.card:hover{transform:translateY(-3px);box-shadow:0 10px 26px #183f4e0d;border-color:#a5cec4}
+.category{font-size:9px;color:var(--verde);letter-spacing:1.2px;text-transform:uppercase}
+.card-arrow{position:absolute;right:20px;top:16px;color:#9baeb9;font-size:19px}
+.card h3{font-size:12px;line-height:1.5;margin:15px 0;min-height:36px;padding-right:10px}
+.value{font-size:32px;font-weight:750;letter-spacing:-1px}
+.value.pending{font-size:27px;color:#8596a4}
+.context{font-size:10px;color:var(--muted);line-height:1.6;margin:9px 0 20px}
+.card-bottom{margin-top:auto;padding-top:13px;border-top:1px solid #edf1f5;
+  display:flex;justify-content:space-between;align-items:end;gap:8px;flex-wrap:wrap}
+.target{font-size:9px;color:var(--muted);line-height:1.7}
+.target strong{display:block;font-size:12px;color:var(--texto)}
+.status{font-size:9px;border-radius:5px;padding:5px 7px;white-space:nowrap}
+.status.umbral{background:var(--verde-claro);color:var(--verde)}
+.status.brecha{background:var(--ambar-claro);color:var(--ambar)}
+.status.pendiente{background:#edf2f7;color:#74899b}
+.empty{padding:35px;text-align:center;border:1px dashed var(--linea);
+  border-radius:12px;background:white;color:var(--muted);font-size:12px}
+.comparison-layout{display:grid;grid-template-columns:1.2fr 1fr;gap:25px;margin-top:22px}
+.comparison-select{width:100%;margin-bottom:22px}
+.bar-row{margin-bottom:20px}
+.bar-label{display:flex;justify-content:space-between;gap:15px;font-size:11px;margin-bottom:9px}
+.bar-label span{color:var(--muted)}
+.track{height:17px;background:#f0f4f6;border-radius:4px;overflow:hidden}
+.fill{height:100%;border-radius:4px;background:var(--verde);min-width:3px}
+.fill.goal{background:#a2cfc4}
+.gap{background:var(--verde-claro);color:#346e60;padding:13px;border-radius:8px;
+  font-size:11px;line-height:1.7}
+.action-panel{background:#f7fafb;border:1px solid var(--linea);
+  border-radius:10px;padding:20px}
+.action-panel p{font-size:12px;line-height:1.8;color:#58717f}
+.action-panel h4{font-size:13px;margin:0 0 12px}
+.action-panel small{display:block;margin-top:18px;font-size:10px;color:var(--muted)}
+footer{display:flex;justify-content:space-between;gap:20px;margin-top:28px;
+  padding:20px 0 0;border-top:1px solid var(--linea);color:var(--muted);
+  font-size:9px;line-height:1.8}
+footer p:last-child{text-align:right}
+dialog{border:1px solid var(--linea);border-radius:16px;padding:27px;
+  width:calc(100% - 30px);max-width:510px;max-height:90dvh;
+  overflow:auto;color:var(--texto);box-shadow:0 25px 90px #183b4430}
+dialog::backdrop{background:#15374877;backdrop-filter:blur(4px)}
+.modal-close{float:right}
+.modal-close button{border:0;border-radius:50%;background:#eef3f5;
+  width:32px;height:32px;font-size:22px}
+dialog h2{font-size:24px;line-height:1.3;letter-spacing:-.7px;margin:15px 0}
+.modal-values{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:22px 0}
+.modal-values div{background:#f3f7f8;padding:15px;border-radius:9px}
+.modal-values small{font-size:9px;color:var(--muted);display:block;line-height:1.7}
+.modal-values strong{font-size:25px;display:block;margin-top:8px}
+.modal-action{font-size:12px;line-height:1.8;margin-top:18px;color:#58717f}
+.modal-note{font-size:9px;color:var(--muted);line-height:1.8;margin-top:18px}
+@media(max-width:1150px){
+  .sidebar{width:190px;padding:28px 15px}.workspace{margin-left:190px}
+  main{padding:27px}.topbar{padding:0 27px}.hero{flex-wrap:wrap}
+  .chart-grid{grid-template-columns:1fr 1.3fr}
+  .donut-wrap{flex-direction:column;gap:12px}.donut{max-width:100%;width:170px}
+  .legend{width:100%;gap:6px}.legend button{justify-content:space-between}
+  .value{font-size:28px}.summary-card{padding:17px}
+}
+@media(max-width:850px){
+  .sidebar{display:none}.workspace{margin-left:0}
+  .summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .comparison-layout{grid-template-columns:1fr}
+  .chart-grid{grid-template-columns:1fr 1.2fr}
+  .panel{padding:18px}.section-head p{display:none}
+}
+@media(max-width:580px){
+  main{padding:23px 15px}.topbar{height:58px;padding:0 15px;font-size:9px}
+  .badge{font-size:8px}.hero h1{font-size:29px}
+  .hero .eyebrow{font-size:8px}.subtitle{font-size:11px}
+  .actions{width:100%}.button{font-size:10px;padding:10px 13px}
+  .notice{font-size:10px;padding:12px}
+  .summary{gap:10px}.summary-card{padding:15px}
+  .summary-card span{font-size:7px}.summary-card strong{font-size:30px}
+  .summary-card p{font-size:9px}
+  .chart-grid{grid-template-columns:1fr}
+  .donut-wrap{flex-direction:row}.donut{width:160px;max-width:47%}
+  .legend{width:auto}.legend button{font-size:9px}
+  .section-head h2{font-size:19px}
+  .toolbar,.inputs{width:100%}.inputs input{width:52%;min-width:0}
+  .inputs select{width:48%}.tabs{width:100%;justify-content:space-between}
+  .tab{font-size:10px;padding:9px 11px}
+  .cards{gap:10px}.card{padding:15px 12px;min-height:255px}
+  .card h3{font-size:11px;min-height:46px}.category{font-size:8px}
+  .card-arrow{right:11px;top:11px}.value{font-size:25px}
+  .value.pending{font-size:22px}.context{font-size:9px}
+  .status{font-size:8px}.target{font-size:8px}.target strong{font-size:11px}
+  .bar-label{font-size:10px}.panel h3{font-size:15px}
+  footer{font-size:8px}.modal-values strong{font-size:23px}
+}
+@media(max-width:350px){.cards{grid-template-columns:1fr}.card{min-height:220px}}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}*{transition:none!important}
+}
+@media print{
+  @page{size:A4;margin:10mm}
+  body{background:white;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  .sidebar,.topbar,.actions,.toolbar,.result-line,.card-arrow,dialog{display:none!important}
+  .workspace{margin:0}main{padding:0}
+  .summary{grid-template-columns:repeat(4,1fr);gap:8px}
+  .summary-card{padding:12px}.summary-card strong{font-size:26px}
+  .summary-card span{font-size:6px}.summary-card p{font-size:8px}
+  .chart-grid{grid-template-columns:1fr 1.3fr}
+  .cards{grid-template-columns:repeat(3,1fr);gap:9px}
+  .card{break-inside:avoid;min-height:225px;padding:13px}
+  .value{font-size:25px}.context{font-size:8px}
+  .panel{padding:15px;break-inside:avoid}
+  .comparison-select{display:none}.comparison-layout{grid-template-columns:1fr 1fr}
+  h1{font-size:29px}.notice{font-size:9px}.section-head{margin-top:22px}
+  .legend button{font-size:8px}.donut{width:130px}
+}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <a class="brand" href="#inicio">
+    <span class="logo">A</span>
+    <span>AVDM<small>CONTROL DE GESTIÓN</small></span>
+  </a>
+  <p class="nav-title">ESPACIO DE TRABAJO</p>
+  <nav aria-label="Navegación principal">
+    <a href="#inicio">▦ &nbsp; Vista general</a>
+    <a href="#graficos">◉ &nbsp; Gráficos</a>
+    <a href="#indicadores">◫ &nbsp; Indicadores</a>
+    <a href="#comparativo">↗ &nbsp; Comparar metas</a>
+  </nav>
+  <div class="sidebar-bottom">
+    <strong>Automotora Viña del Mar</strong>
+    <p>Estrategia y desempeño</p>
+    <span>CASO ACADÉMICO · 2027</span>
+  </div>
+</aside>
 
+<div class="workspace">
+  <header class="topbar">
+    <span>Control de gestión &nbsp; / &nbsp; <strong>Dashboard estratégico</strong></span>
+    <span class="badge">Referencias del caso</span>
+  </header>
 
-@app.get("/api/indicadores")
-def indicadores():
-    return jsonify(DATOS)
+  <main>
+    <section class="hero" id="inicio">
+      <div>
+        <p class="eyebrow">AUTOMOTORA VIÑA DEL MAR S.A.C.</p>
+        <h1>El negocio, en perspectiva<span>.</span></h1>
+        <p class="subtitle">Crecimiento rentable, servicio ágil y disponibilidad.</p>
+      </div>
+      <div class="actions">
+        <button class="button" id="imprimir" type="button">↗ Imprimir</button>
+        <a class="button primary" href="{{ url_for('descargar') }}">↓ Descargar CSV</a>
+      </div>
+    </section>
 
+    <div class="notice">
+      <strong>Contexto de lectura.</strong>
+      Las cifras son referencias del caso. Las metas 2027 son propuestas académicas;
+      el estándar de stock proviene del caso. No hay actualización automática de datos.
+    </div>
 
-@app.get("/descargar.csv")
-def descargar():
-    archivo = io.StringIO(newline="")
-    escritor = csv.writer(archivo, delimiter=";")
-    escritor.writerow(["Indicador", "Perspectiva", "Referencia del caso", "Unidad", "Operador meta", "Meta o estándar", "Horizonte", "Comparación"])
-    for item in DATOS:
-        escritor.writerow([item["nombre"], item["categoria"], "Sin medición" if item["valor"] is None else item["valor"], item["unidad"], item["operador"], item["meta"], item["plazo"], item["estado"]])
-    return Response("\ufeff" + archivo.getvalue(), content_type="text/csv; charset=utf-8", headers={"Content-Disposition": 'attachment; filename="indicadores-automotora.csv"'})
+    <section class="summary" aria-label="Resumen de indicadores">
+      <div class="summary-card">
+        <span>INDICADORES ESTRATÉGICOS</span>
+        <strong id="total"></strong>
+        <p>3 financieros · 3 no financieros</p>
+      </div>
+      <div class="summary-card">
+        <span>REFERENCIAS EN UMBRAL</span>
+        <strong id="total-umbral" style="color:var(--verde)"></strong>
+        <p>Referencias que alcanzan el umbral</p>
+      </div>
+      <div class="summary-card">
+        <span>BRECHAS FRENTE A META</span>
+        <strong id="total-brecha" style="color:var(--ambar)"></strong>
+        <p>Oportunidades de mejora</p>
+      </div>
+      <div class="summary-card">
+        <span>MEDICIÓN PENDIENTE</span>
+        <strong id="total-pendiente"></strong>
+        <p>Indicadores sin referencia medida</p>
+      </div>
+    </section>
 
+    <section id="graficos">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">PANORAMA VISUAL</p>
+          <h2>Tres formas de entender el desempeño</h2>
+        </div>
+        <p>Vista completa del caso</p>
+      </div>
+      <div class="chart-grid">
+        <article class="panel">
+          <h3>Distribución de indicadores</h3>
+          <p class="panel-sub">Cantidad de indicadores según su comparación con la meta.</p>
+          <div class="donut-wrap">
+            <div id="torta" class="donut"></div>
+            <div id="leyenda-torta" class="legend"></div>
+          </div>
+          <p class="donut-note">
+            Selecciona un estado en la leyenda para filtrar las tarjetas.
+            La torta cuenta indicadores; no suma ingresos, horas ni porcentajes.
+          </p>
+        </article>
 
-if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000)
+        <article class="panel">
+          <h3>Márgenes y participación</h3>
+          <p class="panel-sub">
+            Referencias y metas de los tres indicadores con medición expresada en porcentaje.
+          </p>
+          <div id="barras"></div>
+          <div class="chart-legend">
+            <span><i style="background:#087f72"></i>Referencia del caso</span>
+            <span><i style="background:#a2cfc4"></i>Meta propuesta</span>
+          </div>
+          <p class="donut-note">
+            Son indicadores distintos: las barras comparan cada referencia con su propia meta.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section id="indicadores">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">CUADRO DE MANDO</p>
+          <h2>Los indicadores que importan</h2>
+        </div>
+        <p>Selecciona una tarjeta para ver el detalle ↗</p>
+      </div>
+
+      <div class="toolbar">
+        <div class="tabs" role="group" aria-label="Filtrar por perspectiva">
+          <button class="tab active" data-categoria="Todas" aria-pressed="true">Todos</button>
+          <button class="tab" data-categoria="Finanzas" aria-pressed="false">Finanzas</button>
+          <button class="tab" data-categoria="Clientes" aria-pressed="false">Clientes</button>
+          <button class="tab" data-categoria="Procesos" aria-pressed="false">Procesos</button>
+        </div>
+        <div class="inputs">
+          <input id="buscar" type="search" aria-label="Buscar indicador"
+                 placeholder="Buscar indicador…">
+          <select id="filtro-estado" aria-label="Filtrar por estado">
+            <option value="todos">Todos los estados</option>
+            <option value="umbral">En umbral</option>
+            <option value="brecha">Con brecha</option>
+            <option value="pendiente">Sin medición</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="result-line" aria-live="polite">
+        <span id="resultados"></span>
+        <button id="limpiar" class="text-button" hidden>Limpiar filtros</button>
+      </div>
+      <div id="tarjetas" class="cards"></div>
+      <div id="vacio" class="empty" hidden>
+        No encontramos indicadores. Prueba otra búsqueda o limpia los filtros.
+      </div>
+    </section>
+
+    <section id="comparativo">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">REFERENCIA VS. OBJETIVO</p>
+          <h2>La distancia a la meta</h2>
+        </div>
+        <p>Comparación individual</p>
+      </div>
+
+      <article class="panel">
+        <label for="comparar" class="panel-sub">Selecciona un indicador</label>
+        <select id="comparar" class="comparison-select">
+          {% for item in datos %}
+          <option value="{{ item.id }}">{{ item.nombre }}</option>
+          {% endfor %}
+        </select>
+        <div class="comparison-layout">
+          <div id="comparacion" aria-live="polite"></div>
+          <div class="action-panel">
+            <p class="eyebrow">ACCIÓN SUGERIDA</p>
+            <h4 id="accion-titulo"></h4>
+            <p id="accion-texto"></p>
+            <small>
+              Comparación puntual: el caso no incluye una serie histórica.
+              Revisión de gestión propuesta: mensual.
+            </small>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <footer>
+      <p><strong>AVDM</strong> · Dashboard estratégico</p>
+      <p>Fuente: Caso Automotora Viña del Mar S.A.C. y PDO Integral 1.<br>
+      Horizonte propuesto: 2027 · Consulta académica</p>
+    </footer>
+
+    <noscript>
+      <div class="notice">Activa JavaScript para usar los gráficos y filtros.
+      La descarga CSV está disponible desde el botón superior.</div>
+    </noscript>
+  </main>
+</div>
+
+<dialog id="detalle" aria-labelledby="detalle-titulo">
+  <form method="dialog" class="modal-close">
+    <button aria-label="Cerrar detalle">×</button>
+  </form>
+  <p id="detalle-categoria" class="eyebrow"></p>
+  <h2 id="detalle-titulo"></h2>
+  <p id="detalle-contexto" class="panel-sub"></p>
+  <div class="modal-values">
+    <div><small>REFERENCIA DEL CASO</small><strong id="detalle-valor"></strong></div>
+    <div><small id="detalle-plazo"></small>
+      <strong id="detalle-meta" style="color:var(--verde)"></strong></div>
+  </div>
+  <p id="detalle-brecha" class="gap"></p>
+  <p id="detalle-accion" class="modal-action"></p>
+  <p class="modal-note">
+    Las referencias no representan resultados observados de 2027.
+    Las metas y acciones son propuestas académicas; el stock usa el estándar del caso.
+  </p>
+</dialog>
+
+<script id="datos" type="application/json">{{ datos | tojson }}</script>
+<script>
+"use strict";
+
+const datos = JSON.parse(document.getElementById("datos").textContent);
+const $ = id => document.getElementById(id);
+const numero = new Intl.NumberFormat("es-CL", {maximumFractionDigits: 2});
+const estados = {
+  umbral: {nombre: "En umbral", color: "#087f72"},
+  brecha: {nombre: "Con brecha", color: "#d99b45"},
+  pendiente: {nombre: "Sin medición", color: "#a5b5c5"}
+};
+let categoria = "Todas";
+
+function cantidad(estado) {
+  return datos.filter(d => d.estado === estado).length;
+}
+
+function diferencia(d) {
+  if (d.valor === null) {
+    return "Sin medición actual. Primero se necesita establecer una referencia de stock.";
+  }
+  if (d.estado === "umbral") {
+    return "La referencia alcanza el umbral propuesto. El desafío es proteger este nivel.";
+  }
+  const brecha = Math.abs(d.meta - d.valor);
+  if (d.unidad === "h") {
+    return `${numero.format(brecha)} h de reducción para alcanzar la meta (−${numero.format(brecha / d.valor * 100)}%).`;
+  }
+  if (d.unidad === "%") {
+    return `${numero.format(brecha)} puntos porcentuales separan la referencia de la meta.`;
+  }
+  return `US$ ${numero.format(brecha)} M adicionales al mes (+${numero.format(brecha / d.valor * 100)}%).`;
+}
+
+function normalizar(texto) {
+  return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+function pintarResumen() {
+  $("total").textContent = String(datos.length).padStart(2, "0");
+  for (const estado of Object.keys(estados)) {
+    $("total-" + estado).textContent = String(cantidad(estado)).padStart(2, "0");
+  }
+}
+
+function pintarTorta() {
+  let avance = 0;
+  let segmentos = "";
+  let leyenda = "";
+
+  for (const [estado, info] of Object.entries(estados)) {
+    const n = cantidad(estado);
+    const porcentaje = n / datos.length * 100;
+
+    if (n > 0) {
+      segmentos += `
+        <circle cx="100" cy="100" r="69" fill="none"
+          stroke="${info.color}" stroke-width="27" pathLength="100"
+          stroke-dasharray="${porcentaje} ${100 - porcentaje}"
+          stroke-dashoffset="${-avance}">
+          <title>${info.nombre}: ${n} indicadores, ${numero.format(porcentaje)}%</title>
+        </circle>`;
+    }
+    avance += porcentaje;
+    leyenda += `
+      <button type="button" data-estado="${estado}">
+        <span class="dot" style="background:${info.color}"></span>
+        ${info.nombre}
+        <strong>${n} · ${numero.format(porcentaje)}%</strong>
+      </button>`;
+  }
+
+  $("torta").innerHTML = `
+    <svg viewBox="0 0 200 200" role="img"
+      aria-label="Distribución: ${cantidad("umbral")} en umbral,
+      ${cantidad("brecha")} con brecha y ${cantidad("pendiente")} sin medición">
+      <g transform="rotate(-90 100 100)">${segmentos}</g>
+      <text x="100" y="100" text-anchor="middle"
+        fill="#172d3e" font-size="35" font-weight="750">${datos.length}</text>
+      <text x="100" y="121" text-anchor="middle"
+        fill="#6d8090" font-size="10">INDICADORES</text>
+    </svg>`;
+
+  $("leyenda-torta").innerHTML = leyenda;
+
+  document.querySelectorAll("[data-estado]").forEach(boton => {
+    boton.addEventListener("click", () => {
+      limpiar();
+      $("filtro-estado").value = boton.dataset.estado;
+      pintarTarjetas();
+      $("indicadores").scrollIntoView({block: "start"});
+    });
+  });
+}
+
+function pintarBarras() {
+  const items = datos.filter(d => d.unidad === "%" && d.valor !== null);
+  const nombres = {
+    repuestos: "Repuestos",
+    vehiculos: "Vehículos nuevos",
+    mercado: "Mercado"
+  };
+  const maximo = Math.max(10,
+    Math.ceil(Math.max(...items.flatMap(d => [d.valor, d.meta])) * 1.15 / 10) * 10);
+  const suelo = 218;
+  const altura = 175;
+  const izquierda = 42;
+  const ancho = 505;
+  let dibujo = "";
+
+  for (let paso = 0; paso <= 5; paso++) {
+    const valor = maximo * paso / 5;
+    const y = suelo - altura * paso / 5;
+    dibujo += `
+      <line x1="${izquierda}" y1="${y}" x2="565" y2="${y}"
+        stroke="#e6edf1" stroke-dasharray="3 4"/>
+      <text x="33" y="${y + 3}" text-anchor="end"
+        fill="#8799a6" font-size="9">${numero.format(valor)}%</text>`;
+  }
+
+  items.forEach((d, indice) => {
+    const centro = izquierda + ancho / items.length * (indice + 0.5);
+    const h1 = altura * d.valor / maximo;
+    const h2 = altura * d.meta / maximo;
+
+    dibujo += `
+      <rect x="${centro - 35}" y="${suelo - h1}" width="30"
+        height="${h1}" rx="4" fill="#087f72">
+        <title>${d.nombre}: referencia ${d.texto}</title>
+      </rect>
+      <rect x="${centro + 5}" y="${suelo - h2}" width="30"
+        height="${h2}" rx="4" fill="#a2cfc4">
+        <title>${d.nombre}: meta ${d.meta_texto}</title>
+      </rect>
+      <text x="${centro - 20}" y="${suelo - h1 - 8}"
+        text-anchor="middle" fill="#087f72" font-size="10" font-weight="600">
+        ${numero.format(d.valor)}%
+      </text>
+      <text x="${centro + 20}" y="${suelo - h2 - 8}"
+        text-anchor="middle" fill="#5f8f82" font-size="10" font-weight="600">
+        ${numero.format(d.meta)}%
+      </text>
+      <text x="${centro}" y="245" text-anchor="middle"
+        fill="#6d8090" font-size="10">${nombres[d.id] || d.nombre}</text>`;
+  });
+
+  $("barras").innerHTML = `
+    <svg class="bar-svg" viewBox="0 0 585 265" role="img"
+      aria-label="Barras: repuestos 40% frente a meta 40%;
+      vehículos nuevos 12% frente a meta 12%;
+      mercado 10,08% frente a meta 11%">
+      ${dibujo}
+    </svg>`;
+}
+
+function pintarTarjetas() {
+  const busqueda = normalizar($("buscar").value.trim());
+  const estado = $("filtro-estado").value;
+  const visibles = datos.filter(d =>
+    (categoria === "Todas" || d.categoria === categoria) &&
+    (estado === "todos" || d.estado === estado) &&
+    normalizar(d.nombre + " " + d.categoria).includes(busqueda)
+  );
+
+  $("tarjetas").innerHTML = visibles.map(d => `
+    <button type="button" class="card" data-id="${d.id}"
+      aria-label="${d.nombre}: ${d.texto}. Ver detalle">
+      <span class="category">${d.categoria}</span>
+      <span class="card-arrow" aria-hidden="true">↗</span>
+      <h3>${d.nombre}</h3>
+      <span class="value ${d.valor === null ? "pending" : ""}">${d.texto}</span>
+      <span class="context">${d.contexto}</span>
+      <span class="card-bottom">
+        <span class="target">${d.plazo}<strong>${d.meta_texto}</strong></span>
+        <span class="status ${d.estado}">${estados[d.estado].nombre}</span>
+      </span>
+    </button>`).join("");
+
+  $("resultados").textContent =
+    `${visibles.length} ${visibles.length === 1 ? "indicador" : "indicadores"} de ${datos.length}`;
+  $("vacio").hidden = visibles.length !== 0;
+  $("limpiar").hidden = categoria === "Todas" && estado === "todos" && !busqueda;
+
+  document.querySelectorAll(".card[data-id]").forEach(boton => {
+    boton.addEventListener("click", () => abrirDetalle(boton.dataset.id));
+  });
+}
+
+function actualizarTabs() {
+  document.querySelectorAll("[data-categoria]").forEach(boton => {
+    const activo = boton.dataset.categoria === categoria;
+    boton.classList.toggle("active", activo);
+    boton.setAttribute("aria-pressed", String(activo));
+  });
+}
+
+function limpiar() {
+  categoria = "Todas";
+  $("buscar").value = "";
+  $("filtro-estado").value = "todos";
+  actualizarTabs();
+  pintarTarjetas();
+}
+
+function abrirDetalle(id) {
+  const d = datos.find(item => item.id === id);
+  $("detalle-categoria").textContent = d.categoria + " · Detalle";
+  $("detalle-titulo").textContent = d.nombre;
+  $("detalle-contexto").textContent = d.contexto;
+  $("detalle-valor").textContent = d.texto;
+  $("detalle-meta").textContent = d.meta_texto;
+  $("detalle-plazo").textContent = d.plazo.toUpperCase();
+  $("detalle-brecha").textContent = diferencia(d);
+  $("detalle-accion").textContent = "Acc
