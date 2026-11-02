@@ -761,4 +761,103 @@ function abrirDetalle(id) {
   $("detalle-meta").textContent = d.meta_texto;
   $("detalle-plazo").textContent = d.plazo.toUpperCase();
   $("detalle-brecha").textContent = diferencia(d);
-  $("detalle-accion").textContent = "Acc
+  $("detalle-accion").textContent = d.accion;
+  $("detalle").showModal();
+}
+
+document.querySelectorAll("[data-categoria]").forEach(boton => {
+  boton.addEventListener("click", () => {
+    categoria = boton.dataset.categoria;
+    actualizarTabs();
+    pintarTarjetas();
+  });
+});
+
+$("buscar").addEventListener("input", pintarTarjetas);
+$("filtro-estado").addEventListener("change", pintarTarjetas);
+$("limpiar").addEventListener("click", limpiar);
+
+$("restablecer")?.addEventListener("click", limpiar);
+$("imprimir")?.addEventListener("click", () => window.print());
+
+$("detalle").querySelector("button")?.addEventListener("click", () => {
+  $("detalle").close();
+});
+
+function pintarComparativo() {
+  const selector = $("comparar");
+  const grafico = $("grafico");
+  if (!selector || !grafico) return;
+
+  const d = datos.find(item => item.id === selector.value);
+  if (!d) return;
+
+  if (d.valor === null) {
+    grafico.textContent = "Sin medición actual. Estándar del caso: > 95%.";
+    return;
+  }
+
+  const maximo = Math.max(d.valor, d.meta) * 1.12;
+  grafico.innerHTML = `
+    <p>Referencia del caso: <strong>${d.texto}</strong></p>
+    <div style="height:16px;background:#edf3f5;border-radius:5px;margin:10px 0 20px">
+      <div style="height:100%;width:${d.valor / maximo * 100}%;background:#087f72;border-radius:5px"></div>
+    </div>
+    <p>${d.plazo}: <strong>${d.meta_texto}</strong></p>
+    <div style="height:16px;background:#edf3f5;border-radius:5px;margin:10px 0 20px">
+      <div style="height:100%;width:${d.meta / maximo * 100}%;background:#a2cfc4;border-radius:5px"></div>
+    </div>
+    <p>${diferencia(d)}</p>`;
+}
+
+$("comparar")?.addEventListener("change", pintarComparativo);
+
+pintarResumen();
+pintarTorta();
+pintarBarras();
+actualizarTabs();
+pintarTarjetas();
+pintarComparativo();
+</script>
+</body>
+</html>
+"""
+
+
+@app.get("/")
+def inicio():
+    return render_template_string(PAGINA, datos=DATOS)
+
+
+@app.get("/descargar.csv")
+def descargar():
+    archivo = io.StringIO()
+    escritor = csv.writer(archivo, delimiter=";")
+    escritor.writerow([
+        "Indicador", "Categoria", "Referencia",
+        "Unidad", "Meta", "Plazo", "Estado"
+    ])
+
+    for d in DATOS:
+        escritor.writerow([
+            d["nombre"],
+            d["categoria"],
+            "Sin medicion" if d["valor"] is None else d["valor"],
+            d["unidad"],
+            d["meta_texto"],
+            d["plazo"],
+            d["estado"],
+        ])
+
+    return Response(
+        "\ufeff" + archivo.getvalue(),
+        content_type="text/csv; charset=utf-8",
+        headers={
+            "Content-Disposition":
+            'attachment; filename="indicadores-automotora.csv"'
+        },
+    )
+
+
+if __name__ == "__main__":
+    app.run()
