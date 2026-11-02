@@ -336,9 +336,90 @@ dialog h2{font-size:24px;line-height:1.3;letter-spacing:-.7px;margin:15px 0}
   h1{font-size:29px}.notice{font-size:9px}.section-head{margin-top:22px}
   .legend button{font-size:8px}.donut{width:130px}
 }
+/* Ajustes de legibilidad, controles y acceso con teclado. */
+:root{--fluida:cubic-bezier(.22,1,.36,1)}
+.slice{transition:stroke-width .45s var(--fluida),opacity .45s ease,filter .3s ease}
+.donut-svg .slice{transition:stroke-dasharray 1s var(--fluida),stroke-dashoffset 1s var(--fluida),stroke .7s ease,stroke-width .45s var(--fluida),opacity .45s ease}
+.donut-svg .slice:hover{stroke-width:34px!important;filter:drop-shadow(0 2px 2px #173b3915)}
+.pie-number{fill:white;font-size:11px;font-weight:750;pointer-events:none;paint-order:stroke;stroke:#244b4525;stroke-width:1px;transition:transform 1s var(--fluida),opacity .45s ease}
+.pie-center{font-size:26px;font-weight:750;fill:#172d3e;letter-spacing:-1px}
+.pie-subtitle{font-size:7px;letter-spacing:.6px;fill:#6d8090}
+.pie-goal{font-size:8px;fill:#6d8090}
+.torta-controls{display:grid;gap:7px;margin-top:17px}
+.torta-controls label{font-size:11px;color:var(--muted)}
+.torta-controls select{width:100%;min-height:40px;background:#f8fbfa}
+.torta-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:15px}
+.torta-actions .button{font-size:10px;padding:9px 11px}
+.torta-sin-dato{font-size:12px;line-height:1.8;color:var(--muted)}
+.legend strong{display:block;font-size:11px;line-height:1.5}
+.legend strong small{display:block;font-size:9px;color:var(--muted);font-weight:400}
+.legend button{justify-content:flex-start;min-width:0}
+.legend button>span:nth-child(2){flex:1;min-width:0}
+.donut-wrap .donut{width:205px;flex-shrink:0}
+@media print{.torta-controls,.torta-actions{display:none!important}.donut-svg .slice,.pie-number{transition:none!important}}
+.data-bar{transition:x .75s var(--fluida),y .75s var(--fluida),height .75s var(--fluida),width .75s var(--fluida),opacity .4s ease}
+.bar-number{transition:transform .75s var(--fluida),opacity .4s ease}
+.fill{transition:width .85s var(--fluida)}
+.comparison-bars{max-height:340px;opacity:1;overflow:hidden;transition:max-height .6s var(--fluida),opacity .35s ease,transform .5s var(--fluida);transform:translateY(0)}
+#comparacion .missing-comparison{max-height:0;opacity:0;padding:0;overflow:hidden;transform:translateY(10px);transition:max-height .6s var(--fluida),opacity .4s ease,transform .5s var(--fluida),padding .5s ease}
+#comparacion.is-missing .comparison-bars{max-height:0;opacity:0;transform:translateY(-6px)}
+#comparacion.is-missing .missing-comparison{max-height:280px;opacity:1;padding:10px 0 20px;transform:translateY(0)}
+dialog[open]{animation:aparecer-modal .25s var(--fluida)}
+dialog[open]::backdrop{animation:aparecer-fondo .25s ease}
+@keyframes aparecer-modal{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes aparecer-fondo{from{background:transparent}to{background:#15374877}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+@media print{*,*::before,*::after{animation:none!important;transition:none!important}.is-missing .comparison-bars{display:none}.comparison-bars[aria-hidden="false"]{max-height:none!important}.missing-comparison[aria-hidden="true"]{display:none!important}}
+.summary-card{text-align:left;color:var(--texto);font:inherit;cursor:pointer;transition:border-color .18s,transform .18s}
+.summary-card:hover{border-color:#76b6a9;transform:translateY(-2px)}
+.summary-card[aria-pressed="true"]{box-shadow:inset 0 0 0 1px #087f72;border-color:#087f72}
+.summary-card span{display:block;line-height:1.6}
+.panel-controls{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:16px;flex-wrap:wrap}
+.panel-controls label{font-size:11px;color:var(--muted)}
+.panel-controls select{padding:8px;font-size:11px}
+.slice,.bar-group{cursor:pointer}
+.slice:hover{stroke-width:32}
+.slice:focus-visible{outline:none;stroke-width:34;filter:drop-shadow(0 0 2px #174639)}
+.bar-group:hover .data-bar,.bar-group:focus-visible .data-bar{stroke:#164d45;stroke-width:2}
+.bar-group:focus-visible{outline:2px solid #087f72;outline-offset:2px}
+.legend button[aria-pressed="true"]{box-shadow:inset 0 0 0 1px #087f72;background:#e8f6f1}
+.legend button{min-height:40px;line-height:1.5;flex-wrap:wrap}
+.legend strong{white-space:nowrap}
+.chart-grid>.panel{overflow:visible}
+.missing-comparison{padding:10px 0 20px;line-height:1.8}
+.missing-comparison h3{margin:18px 0 10px}
+.missing-comparison p{font-size:12px;color:#58717f;margin:8px 0}
+.action-panel .button{margin-top:15px;font-size:11px}
+.empty .button{margin-top:18px}
+.modal-buttons{margin-top:20px}
+.modal-note{line-height:1.7}
+nav a:first-child{background:transparent;color:var(--muted)}
+nav a[aria-current="location"],nav a:hover{color:var(--verde);background:var(--verde-claro)}
+.skip-link{position:absolute;top:8px;left:8px;z-index:99;background:#fff;padding:12px;border:1px solid #087f72;transform:translateY(-160%)}
+.skip-link:focus{transform:none}
+.section-head h2:focus{outline:none}
+.card h3{font-size:14px}.context{font-size:11px}.category{font-size:10px}
+.summary-card p,.panel-sub{font-size:12px}.summary-card span{font-size:10px}
+.panel h3{font-size:18px}.legend button,.chart-legend{font-size:11px}
+.donut-note{font-size:11px;line-height:1.75}.bar-label{font-size:12px}
+.target{font-size:10px}.status{font-size:10px}.result-line{font-size:12px}
+.inputs input,.inputs select{font-size:12px;min-height:42px}
+.tab{font-size:12px;min-height:42px}.subtitle{font-size:14px}.notice{font-size:12px}
+.chart-legend{flex-wrap:wrap}.bar-svg{min-width:0}
+.donut-wrap{gap:16px}.donut{width:185px;max-width:46%}.legend{min-width:0}
+.comparison-select{margin-top:8px;font-size:13px;min-height:44px}
+.bar-row{margin-bottom:25px}.gap{font-size:12px}
+footer{font-size:10px}
+@media(max-width:1150px){.donut-wrap{flex-direction:column}.donut{max-width:100%;width:175px}.chart-grid{grid-template-columns:1fr 1.3fr}}
+@media(max-width:850px){.chart-grid{grid-template-columns:1fr}.donut-wrap{flex-direction:row;justify-content:space-around}.donut{max-width:45%;width:190px}.legend{width:auto}.sidebar{display:none}}
+@media(max-width:580px){.hero h1{font-size:29px}.summary-card span{font-size:9px;letter-spacing:.4px}.summary-card p{font-size:11px}.summary-card{padding:14px}.card h3{font-size:13px;min-height:50px}.card{min-height:280px}.context{font-size:11px}.value{font-size:27px}.notice{font-size:11px}.panel-sub,.donut-note{font-size:11px}.section-head p{font-size:10px}.donut-wrap{gap:8px}.donut{width:155px;max-width:44%}.legend button{font-size:10px;padding:9px 7px;gap:5px}.legend strong{margin-left:0}.panel{padding:16px}.inputs{flex-wrap:wrap}.inputs input{width:100%}.inputs select{width:100%}.tabs{overflow-x:auto;justify-content:space-between}.tab{padding:8px 10px;font-size:11px}.card-bottom{display:block}.status{display:inline-block;margin-top:9px}.modal-values strong{font-size:22px}.action-panel p{font-size:12px}.comparison-layout{gap:15px}.card-arrow{top:9px}footer{font-size:9px}.button{min-height:42px}}
+@media(max-width:380px){.cards{grid-template-columns:1fr}.card{min-height:220px}.card h3{min-height:0}.donut-wrap{flex-direction:column}.donut{max-width:100%;width:170px}.legend{width:100%}.legend button{justify-content:space-between}.chart-legend{font-size:10px}.summary-card strong{font-size:28px}}
+@media print{.panel-controls,.modal-buttons,.skip-link,.action-panel .button{display:none!important}.summary-card{box-shadow:none!important;transform:none}.card:hover{transform:none}.donut-wrap{flex-direction:column}.card h3{font-size:11px}.context,.donut-note{font-size:9px}.summary-card p{font-size:8px}.summary-card span{font-size:7px}.card{min-height:230px}.chart-grid{grid-template-columns:1fr 1.3fr}.summary{grid-template-columns:repeat(4,1fr)}footer{font-size:8px}}
+
 </style>
 </head>
 <body>
+<a class="skip-link" href="#contenido">Ir al contenido</a>
 <aside class="sidebar">
   <a class="brand" href="#inicio">
     <span class="logo">A</span>
@@ -364,7 +445,7 @@ dialog h2{font-size:24px;line-height:1.3;letter-spacing:-.7px;margin:15px 0}
     <span class="badge">Referencias del caso</span>
   </header>
 
-  <main>
+  <main id="contenido">
     <section class="hero" id="inicio">
       <div>
         <p class="eyebrow">AUTOMOTORA VIÑA DEL MAR S.A.C.</p>
@@ -372,7 +453,7 @@ dialog h2{font-size:24px;line-height:1.3;letter-spacing:-.7px;margin:15px 0}
         <p class="subtitle">Crecimiento rentable, servicio ágil y disponibilidad.</p>
       </div>
       <div class="actions">
-        <button class="button" id="imprimir" type="button">↗ Imprimir</button>
+        <button class="button" id="imprimir" type="button">↗ Imprimir vista</button>
         <a class="button primary" href="{{ url_for('descargar') }}">↓ Descargar CSV</a>
       </div>
     </section>
@@ -384,26 +465,26 @@ dialog h2{font-size:24px;line-height:1.3;letter-spacing:-.7px;margin:15px 0}
     </div>
 
     <section class="summary" aria-label="Resumen de indicadores">
-      <div class="summary-card">
+      <button class="summary-card" type="button" data-resumen="todos" aria-pressed="false">
         <span>INDICADORES ESTRATÉGICOS</span>
-        <strong id="total"></strong>
+        <strong id="total">{{ datos | length }}</strong>
         <p>3 financieros · 3 no financieros</p>
-      </div>
-      <div class="summary-card">
+      </button>
+      <button class="summary-card" type="button" data-resumen="umbral" aria-pressed="false">
         <span>REFERENCIAS EN UMBRAL</span>
         <strong id="total-umbral" style="color:var(--verde)"></strong>
         <p>Referencias que alcanzan el umbral</p>
-      </div>
-      <div class="summary-card">
+      </button>
+      <button class="summary-card" type="button" data-resumen="brecha" aria-pressed="false">
         <span>BRECHAS FRENTE A META</span>
         <strong id="total-brecha" style="color:var(--ambar)"></strong>
         <p>Oportunidades de mejora</p>
-      </div>
-      <div class="summary-card">
+      </button>
+      <button class="summary-card" type="button" data-resumen="pendiente" aria-pressed="false">
         <span>MEDICIÓN PENDIENTE</span>
-        <strong id="total-pendiente"></strong>
+        <strong id="total-pendiente">{{ datos | selectattr("estado", "equalto", "pendiente") | list | length }}</strong>
         <p>Indicadores sin referencia medida</p>
-      </div>
+      </button>
     </section>
 
     <section id="graficos">
@@ -412,20 +493,18 @@ dialog h2{font-size:24px;line-height:1.3;letter-spacing:-.7px;margin:15px 0}
           <p class="eyebrow">PANORAMA VISUAL</p>
           <h2>Tres formas de entender el desempeño</h2>
         </div>
-        <p>Vista completa del caso</p>
+        <p>Gráficos del caso completo · los estados filtran las tarjetas</p>
       </div>
       <div class="chart-grid">
         <article class="panel">
-          <h3>Distribución de indicadores</h3>
-          <p class="panel-sub">Cantidad de indicadores según su comparación con la meta.</p>
+          <h3>Comparación circular</h3>
+          <p class="panel-sub">Explora las cifras del caso y su distancia a las metas.</p>
+<div class="torta-controls"><label for="vista-torta">¿Qué quieres comparar?</label><select id="vista-torta"><optgroup label="Vista general"><option value="estados">Estados frente a metas</option><option value="perspectivas">Perspectivas del CMI</option></optgroup><optgroup label="Referencia y brecha hasta la meta">{% for item in datos %}<option value="{{ item.id }}">{{ item.nombre }}</option>{% endfor %}</optgroup></select></div>
           <div class="donut-wrap">
             <div id="torta" class="donut"></div>
             <div id="leyenda-torta" class="legend"></div>
           </div>
-          <p class="donut-note">
-            Selecciona un estado en la leyenda para filtrar las tarjetas.
-            La torta cuenta indicadores; no suma ingresos, horas ni porcentajes.
-          </p>
+          <p id="torta-explicacion" class="donut-note"></p><div class="torta-actions"><button id="torta-accion" type="button" class="button">Ver indicadores ↗</button><button id="reiniciar-torta" type="button" class="text-button">Restablecer círculo</button></div>
         </article>
 
         <article class="panel">
@@ -433,13 +512,13 @@ dialog h2{font-size:24px;line-height:1.3;letter-spacing:-.7px;margin:15px 0}
           <p class="panel-sub">
             Referencias y metas de los tres indicadores con medición expresada en porcentaje.
           </p>
-          <div id="barras"></div>
+          <div class="panel-controls"><label for="series-barras">Series del gráfico</label><select id="series-barras"><option value="ambas">Referencia y meta</option><option value="referencia">Solo referencia</option><option value="meta">Solo meta</option></select></div><div id="barras"></div>
           <div class="chart-legend">
-            <span><i style="background:#087f72"></i>Referencia del caso</span>
-            <span><i style="background:#a2cfc4"></i>Meta propuesta</span>
+            <span id="leyenda-referencia"><i style="background:#087f72"></i>Referencia del caso</span>
+            <span id="leyenda-meta"><i style="background:#a2cfc4"></i>Meta propuesta</span>
           </div>
           <p class="donut-note">
-            Son indicadores distintos: las barras comparan cada referencia con su propia meta.
+            Selecciona un grupo de barras para ver su detalle. Cada indicador se compara con su propia meta.
           </p>
         </article>
       </div>
@@ -449,7 +528,7 @@ dialog h2{font-size:24px;line-height:1.3;letter-spacing:-.7px;margin:15px 0}
       <div class="section-head">
         <div>
           <p class="eyebrow">CUADRO DE MANDO</p>
-          <h2>Los indicadores que importan</h2>
+          <h2 id="indicadores-titulo" tabindex="-1">Los indicadores que importan</h2>
         </div>
         <p>Selecciona una tarjeta para ver el detalle ↗</p>
       </div>
@@ -478,9 +557,7 @@ dialog h2{font-size:24px;line-height:1.3;letter-spacing:-.7px;margin:15px 0}
         <button id="limpiar" class="text-button" hidden>Limpiar filtros</button>
       </div>
       <div id="tarjetas" class="cards"></div>
-      <div id="vacio" class="empty" hidden>
-        No encontramos indicadores. Prueba otra búsqueda o limpia los filtros.
-      </div>
+      <div id="vacio" class="empty" hidden><p>No encontramos indicadores. Prueba otra búsqueda o limpia los filtros.</p><button id="restablecer" class="button" type="button">Mostrar todos</button></div>
     </section>
 
     <section id="comparativo">
@@ -504,7 +581,7 @@ dialog h2{font-size:24px;line-height:1.3;letter-spacing:-.7px;margin:15px 0}
           <div class="action-panel">
             <p class="eyebrow">ACCIÓN SUGERIDA</p>
             <h4 id="accion-titulo"></h4>
-            <p id="accion-texto"></p>
+            <p id="accion-texto"></p><button id="abrir-comparado" class="button" type="button">Ver detalle del indicador ↗</button>
             <small>
               Comparación puntual: el caso no incluye una serie histórica.
               Revisión de gestión propuesta: mensual.
@@ -540,7 +617,7 @@ dialog h2{font-size:24px;line-height:1.3;letter-spacing:-.7px;margin:15px 0}
       <strong id="detalle-meta" style="color:var(--verde)"></strong></div>
   </div>
   <p id="detalle-brecha" class="gap"></p>
-  <p id="detalle-accion" class="modal-action"></p>
+  <p id="detalle-accion" class="modal-action"></p><div class="modal-buttons"><button id="ver-comparacion" class="button primary" type="button">Comparar este indicador ↗</button></div>
   <p class="modal-note">
     Las referencias no representan resultados observados de 2027.
     Las metas y acciones son propuestas académicas; el stock usa el estándar del caso.
@@ -550,190 +627,33 @@ dialog h2{font-size:24px;line-height:1.3;letter-spacing:-.7px;margin:15px 0}
 <script id="datos" type="application/json">{{ datos | tojson }}</script>
 <script>
 "use strict";
-
 const datos = JSON.parse(document.getElementById("datos").textContent);
 const $ = id => document.getElementById(id);
 const numero = new Intl.NumberFormat("es-CL", {maximumFractionDigits: 2});
 const estados = {
   umbral: {nombre: "En umbral", color: "#087f72"},
-  brecha: {nombre: "Con brecha", color: "#d99b45"},
-  pendiente: {nombre: "Sin medición", color: "#a5b5c5"}
+  brecha: {nombre: "Con brecha", color: "#c88832"},
+  pendiente: {nombre: "Sin medición", color: "#8c9fae"}
 };
 let categoria = "Todas";
-
-function cantidad(estado) {
-  return datos.filter(d => d.estado === estado).length;
+let detalleActual = datos[0].id;
+const normalizar = texto => texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+const escapar = texto => String(texto).replace(/[&<>"']/g, letra => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[letra]));
+const cantidad = estado => datos.filter(d => d.estado === estado).length;
+const movimientoReducido = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function textoSuave(elemento, texto) {
+  if (elemento.textContent === texto) return;
+  elemento.textContent = texto;
+  if (!movimientoReducido()) elemento.animate([{opacity: 0.35, transform: "translateY(3px)"}, {opacity: 1, transform: "translateY(0)"}], {duration: 220, easing: "ease-out"});
 }
 
 function diferencia(d) {
-  if (d.valor === null) {
-    return "Sin medición actual. Primero se necesita establecer una referencia de stock.";
-  }
-  if (d.estado === "umbral") {
-    return "La referencia alcanza el umbral propuesto. El desafío es proteger este nivel.";
-  }
+  if (d.valor === null) return "Sin medición actual. Primero se necesita establecer una referencia de stock.";
+  if (d.estado === "umbral") return "La referencia alcanza el umbral propuesto. El desafío es proteger este nivel.";
   const brecha = Math.abs(d.meta - d.valor);
-  if (d.unidad === "h") {
-    return `${numero.format(brecha)} h de reducción para alcanzar la meta (−${numero.format(brecha / d.valor * 100)}%).`;
-  }
-  if (d.unidad === "%") {
-    return `${numero.format(brecha)} puntos porcentuales separan la referencia de la meta.`;
-  }
+  if (d.unidad === "h") return `${numero.format(brecha)} h de reducción para alcanzar la meta (−${numero.format(brecha / d.valor * 100)}%).`;
+  if (d.unidad === "%") return `${numero.format(brecha)} puntos porcentuales separan la referencia de la meta.`;
   return `US$ ${numero.format(brecha)} M adicionales al mes (+${numero.format(brecha / d.valor * 100)}%).`;
-}
-
-function normalizar(texto) {
-  return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-}
-
-function pintarResumen() {
-  $("total").textContent = String(datos.length).padStart(2, "0");
-  for (const estado of Object.keys(estados)) {
-    $("total-" + estado).textContent = String(cantidad(estado)).padStart(2, "0");
-  }
-}
-
-function pintarTorta() {
-  let avance = 0;
-  let segmentos = "";
-  let leyenda = "";
-
-  for (const [estado, info] of Object.entries(estados)) {
-    const n = cantidad(estado);
-    const porcentaje = n / datos.length * 100;
-
-    if (n > 0) {
-      segmentos += `
-        <circle cx="100" cy="100" r="69" fill="none"
-          stroke="${info.color}" stroke-width="27" pathLength="100"
-          stroke-dasharray="${porcentaje} ${100 - porcentaje}"
-          stroke-dashoffset="${-avance}">
-          <title>${info.nombre}: ${n} indicadores, ${numero.format(porcentaje)}%</title>
-        </circle>`;
-    }
-    avance += porcentaje;
-    leyenda += `
-      <button type="button" data-estado="${estado}">
-        <span class="dot" style="background:${info.color}"></span>
-        ${info.nombre}
-        <strong>${n} · ${numero.format(porcentaje)}%</strong>
-      </button>`;
-  }
-
-  $("torta").innerHTML = `
-    <svg viewBox="0 0 200 200" role="img"
-      aria-label="Distribución: ${cantidad("umbral")} en umbral,
-      ${cantidad("brecha")} con brecha y ${cantidad("pendiente")} sin medición">
-      <g transform="rotate(-90 100 100)">${segmentos}</g>
-      <text x="100" y="100" text-anchor="middle"
-        fill="#172d3e" font-size="35" font-weight="750">${datos.length}</text>
-      <text x="100" y="121" text-anchor="middle"
-        fill="#6d8090" font-size="10">INDICADORES</text>
-    </svg>`;
-
-  $("leyenda-torta").innerHTML = leyenda;
-
-  document.querySelectorAll("[data-estado]").forEach(boton => {
-    boton.addEventListener("click", () => {
-      limpiar();
-      $("filtro-estado").value = boton.dataset.estado;
-      pintarTarjetas();
-      $("indicadores").scrollIntoView({block: "start"});
-    });
-  });
-}
-
-function pintarBarras() {
-  const items = datos.filter(d => d.unidad === "%" && d.valor !== null);
-  const nombres = {
-    repuestos: "Repuestos",
-    vehiculos: "Vehículos nuevos",
-    mercado: "Mercado"
-  };
-  const maximo = Math.max(10,
-    Math.ceil(Math.max(...items.flatMap(d => [d.valor, d.meta])) * 1.15 / 10) * 10);
-  const suelo = 218;
-  const altura = 175;
-  const izquierda = 42;
-  const ancho = 505;
-  let dibujo = "";
-
-  for (let paso = 0; paso <= 5; paso++) {
-    const valor = maximo * paso / 5;
-    const y = suelo - altura * paso / 5;
-    dibujo += `
-      <line x1="${izquierda}" y1="${y}" x2="565" y2="${y}"
-        stroke="#e6edf1" stroke-dasharray="3 4"/>
-      <text x="33" y="${y + 3}" text-anchor="end"
-        fill="#8799a6" font-size="9">${numero.format(valor)}%</text>`;
-  }
-
-  items.forEach((d, indice) => {
-    const centro = izquierda + ancho / items.length * (indice + 0.5);
-    const h1 = altura * d.valor / maximo;
-    const h2 = altura * d.meta / maximo;
-
-    dibujo += `
-      <rect x="${centro - 35}" y="${suelo - h1}" width="30"
-        height="${h1}" rx="4" fill="#087f72">
-        <title>${d.nombre}: referencia ${d.texto}</title>
-      </rect>
-      <rect x="${centro + 5}" y="${suelo - h2}" width="30"
-        height="${h2}" rx="4" fill="#a2cfc4">
-        <title>${d.nombre}: meta ${d.meta_texto}</title>
-      </rect>
-      <text x="${centro - 20}" y="${suelo - h1 - 8}"
-        text-anchor="middle" fill="#087f72" font-size="10" font-weight="600">
-        ${numero.format(d.valor)}%
-      </text>
-      <text x="${centro + 20}" y="${suelo - h2 - 8}"
-        text-anchor="middle" fill="#5f8f82" font-size="10" font-weight="600">
-        ${numero.format(d.meta)}%
-      </text>
-      <text x="${centro}" y="245" text-anchor="middle"
-        fill="#6d8090" font-size="10">${nombres[d.id] || d.nombre}</text>`;
-  });
-
-  $("barras").innerHTML = `
-    <svg class="bar-svg" viewBox="0 0 585 265" role="img"
-      aria-label="Barras: repuestos 40% frente a meta 40%;
-      vehículos nuevos 12% frente a meta 12%;
-      mercado 10,08% frente a meta 11%">
-      ${dibujo}
-    </svg>`;
-}
-
-function pintarTarjetas() {
-  const busqueda = normalizar($("buscar").value.trim());
-  const estado = $("filtro-estado").value;
-  const visibles = datos.filter(d =>
-    (categoria === "Todas" || d.categoria === categoria) &&
-    (estado === "todos" || d.estado === estado) &&
-    normalizar(d.nombre + " " + d.categoria).includes(busqueda)
-  );
-
-  $("tarjetas").innerHTML = visibles.map(d => `
-    <button type="button" class="card" data-id="${d.id}"
-      aria-label="${d.nombre}: ${d.texto}. Ver detalle">
-      <span class="category">${d.categoria}</span>
-      <span class="card-arrow" aria-hidden="true">↗</span>
-      <h3>${d.nombre}</h3>
-      <span class="value ${d.valor === null ? "pending" : ""}">${d.texto}</span>
-      <span class="context">${d.contexto}</span>
-      <span class="card-bottom">
-        <span class="target">${d.plazo}<strong>${d.meta_texto}</strong></span>
-        <span class="status ${d.estado}">${estados[d.estado].nombre}</span>
-      </span>
-    </button>`).join("");
-
-  $("resultados").textContent =
-    `${visibles.length} ${visibles.length === 1 ? "indicador" : "indicadores"} de ${datos.length}`;
-  $("vacio").hidden = visibles.length !== 0;
-  $("limpiar").hidden = categoria === "Todas" && estado === "todos" && !busqueda;
-
-  document.querySelectorAll(".card[data-id]").forEach(boton => {
-    boton.addEventListener("click", () => abrirDetalle(boton.dataset.id));
-  });
 }
 
 function actualizarTabs() {
@@ -742,18 +662,281 @@ function actualizarTabs() {
     boton.classList.toggle("active", activo);
     boton.setAttribute("aria-pressed", String(activo));
   });
+  document.querySelectorAll(".summary-card").forEach(boton => {
+    const activo = boton.dataset.resumen === $("filtro-estado").value && categoria === "Todas" && !$("buscar").value.trim();
+    boton.setAttribute("aria-pressed", String(activo));
+  });
+}
+
+function pintarTarjetas() {
+  const posiciones = new Map([...$("tarjetas").querySelectorAll(".card")].map(elemento => [elemento.dataset.id, elemento.getBoundingClientRect()]));
+  const busqueda = normalizar($("buscar").value.trim());
+  const estado = $("filtro-estado").value;
+  const visibles = datos.filter(d => (categoria === "Todas" || d.categoria === categoria) && (estado === "todos" || d.estado === estado) && normalizar(d.nombre + " " + d.categoria).includes(busqueda));
+  $("tarjetas").replaceChildren(...visibles.map(d => {
+    const boton = document.createElement("button");
+    boton.type = "button";
+    boton.className = "card";
+    boton.dataset.id = d.id;
+    boton.setAttribute("aria-label", `${d.nombre}: ${d.texto}. Ver detalle`);
+    boton.innerHTML = `<span class="category">${escapar(d.categoria)}</span><span class="card-arrow" aria-hidden="true">↗</span><h3>${escapar(d.nombre)}</h3><span class="value ${d.valor === null ? "pending" : ""}">${escapar(d.texto)}</span><span class="context">${escapar(d.contexto)}</span><span class="card-bottom"><span class="target">${escapar(d.plazo)}<strong>${escapar(d.meta_texto)}</strong></span><span class="status ${d.estado}">${estados[d.estado].nombre}</span></span>`;
+    boton.addEventListener("click", () => abrirDetalle(d.id));
+    return boton;
+  }));
+  $("resultados").textContent = `${visibles.length} ${visibles.length === 1 ? "indicador" : "indicadores"} de ${datos.length}`;
+  $("vacio").hidden = visibles.length !== 0;
+  $("limpiar").hidden = categoria === "Todas" && estado === "todos" && !busqueda;
+  if (!movimientoReducido()) $("tarjetas").querySelectorAll(".card").forEach((elemento, indice) => {
+    const antes = posiciones.get(elemento.dataset.id);
+    const ahora = elemento.getBoundingClientRect();
+    elemento.animate([{opacity: antes ? 1 : 0, transform: antes ? `translate(${antes.left - ahora.left}px, ${antes.top - ahora.top}px)` : "translateY(12px)"}, {opacity: 1, transform: "translate(0, 0)"}], {duration: 320, delay: antes ? 0 : indice * 30, easing: "cubic-bezier(.22,1,.36,1)"});
+  });
+  actualizarTabs();
 }
 
 function limpiar() {
   categoria = "Todas";
   $("buscar").value = "";
   $("filtro-estado").value = "todos";
-  actualizarTabs();
   pintarTarjetas();
+  pintarTorta();
+}
+
+function filtrarEstado(estado) {
+  categoria = "Todas";
+  $("buscar").value = "";
+  $("filtro-estado").value = estado;
+  pintarTarjetas();
+  pintarTorta();
+  $("indicadores").scrollIntoView({block: "start", behavior: "smooth"});
+  $("indicadores-titulo").focus({preventScroll: true});
+}
+
+function pintarResumen() {
+  $("total").textContent = String(datos.length).padStart(2, "0");
+  Object.keys(estados).forEach(estado => $("total-" + estado).textContent = String(cantidad(estado)).padStart(2, "0"));
+}
+
+let seleccionTorta = null;
+let modoTortaAnterior = "";
+const cuentasTorta = new WeakMap();
+
+function contarSuave(elemento, valor, formato) {
+  if (cuentasTorta.has(elemento)) cancelAnimationFrame(cuentasTorta.get(elemento));
+  const desde = Number(elemento.dataset.numero || 0);
+  if (movimientoReducido() || desde === valor) {
+    elemento.textContent = formato(valor);
+    elemento.dataset.numero = valor;
+    return;
+  }
+  const inicio = performance.now();
+  const paso = tiempo => {
+    const progreso = Math.min(1, (tiempo - inicio) / 650);
+    const actual = desde + (valor - desde) * (1 - Math.pow(1 - progreso, 3));
+    elemento.dataset.numero = actual;
+    elemento.textContent = formato(actual);
+    if (progreso < 1) cuentasTorta.set(elemento, requestAnimationFrame(paso));
+    else {elemento.dataset.numero = valor; elemento.textContent = formato(valor); cuentasTorta.delete(elemento);}
+  };
+  cuentasTorta.set(elemento, requestAnimationFrame(paso));
+}
+
+function modeloTorta() {
+  const modo = $("vista-torta").value;
+  const entero = valor => String(Math.round(valor));
+  if (modo === "estados") return {
+    modo, total: datos.length, valor: datos.length, formato: entero, subtitulo: "INDICADORES", objetivo: "Vista completa del caso",
+    descripcion: "El círculo cuenta indicadores. Selecciona un sector o su leyenda para explorar un estado.",
+    grupos: Object.entries(estados).map(([clave, info]) => ({clave, nombre: info.nombre, n: cantidad(clave), color: info.color, formato: entero})),
+    activo: $("filtro-estado").value === "todos" ? null : $("filtro-estado").value
+  };
+  if (modo === "perspectivas") return {
+    modo, total: datos.length, valor: datos.length, formato: entero, subtitulo: "INDICADORES", objetivo: "Perspectivas del CMI",
+    descripcion: "Cantidad de indicadores por perspectiva. Cada sector permite explorar sus tarjetas.",
+    grupos: ["Finanzas", "Clientes", "Procesos"].map((nombre, i) => ({clave: nombre, nombre, n: datos.filter(d => d.categoria === nombre).length, color: ["#087f72", "#4e91ab", "#c88832"][i], formato: entero})),
+    activo: categoria === "Todas" ? null : categoria
+  };
+  const d = datos.find(item => item.id === modo);
+  const formato = valor => d.unidad === "M USD" ? `${numero.format(valor)} M` : `${numero.format(valor)}${d.unidad === "%" ? "%" : " h"}`;
+  const formatoLeyenda = valor => d.unidad === "M USD" ? `US$ ${numero.format(valor)} M` : formato(valor);
+  const base = {modo, indicador: d, valor: d.valor, formato, subtitulo: "REFERENCIA DEL CASO", objetivo: `Meta: ${d.meta_texto}`, activo: seleccionTorta};
+  if (d.valor === null) return {...base, total: 0, grupos: [], descripcion: "Sin medición de referencia: no es posible calcular una proporción. El estándar del caso es > 95%."};
+  let grupos;
+  if (d.operador === "≤" && d.valor > d.meta) {
+    grupos = [{clave: "objetivo", nombre: "Plazo objetivo", n: d.meta, color: "#087f72"}, {clave: "brecha", nombre: "Reducción necesaria", n: d.valor - d.meta, color: "#c88832"}];
+    base.total = d.valor;
+    base.descripcion = `El círculo representa ${formato(d.valor)} de referencia: distingue el plazo objetivo de las horas que se propone reducir.`;
+  } else if (d.operador === "≤") {
+    grupos = [{clave: "referencia", nombre: "Plazo de referencia", n: d.valor, color: "#087f72"}, {clave: "holgura", nombre: "Holgura hasta el límite", n: d.meta - d.valor, color: "#8fbfb3"}];
+    base.total = d.meta;
+    base.descripcion = "Referencia de tiempo y holgura hasta el plazo máximo propuesto.";
+  } else if (d.valor <= d.meta) {
+    grupos = [{clave: "referencia", nombre: "Referencia del caso", n: d.valor, color: "#087f72"}, {clave: "brecha", nombre: "Brecha hasta la meta", n: d.meta - d.valor, color: "#c88832"}];
+    base.total = d.meta;
+    base.descripcion = "El círculo completo representa la meta. El sector ámbar muestra cuánto falta desde la referencia del caso.";
+  } else {
+    grupos = [{clave: "meta", nombre: "Meta cubierta", n: d.meta, color: "#087f72"}, {clave: "excedente", nombre: "Sobre la meta", n: d.valor - d.meta, color: "#8fbfb3"}];
+    base.total = d.valor;
+    base.descripcion = "El círculo representa la referencia: distingue la meta cubierta del valor que la supera.";
+  }
+  return {...base, grupos: grupos.map(grupo => ({...grupo, formato: grupo.clave === "brecha" && d.unidad === "%" ? valor => `${numero.format(valor)} pp` : formatoLeyenda}))};
+}
+
+function elegirSectorTorta(clave) {
+  const modelo = modeloTorta();
+  seleccionTorta = clave;
+  if (modelo.modo === "estados") {
+    categoria = "Todas";
+    $("buscar").value = "";
+    $("filtro-estado").value = clave;
+    pintarTarjetas();
+  } else if (modelo.modo === "perspectivas") {
+    categoria = clave;
+    $("buscar").value = "";
+    $("filtro-estado").value = "todos";
+    pintarTarjetas();
+  }
+  pintarTorta();
+}
+
+function pintarTorta() {
+  const modelo = modeloTorta();
+  const nuevo = !$("torta").querySelector("svg");
+  if (modelo.modo !== modoTortaAnterior) {seleccionTorta = null; modelo.activo = null; modoTortaAnterior = modelo.modo;}
+  if (nuevo) {
+    $("torta").innerHTML = `<svg class="donut-svg" viewBox="0 0 220 220" aria-label="Comparación circular"><circle cx="110" cy="110" r="76" fill="none" stroke="#edf2f5" stroke-width="28"/><g transform="rotate(-90 110 110)">${[0,1,2].map(i => `<circle class="slice" data-sector-indice="${i}" role="button" tabindex="0" cx="110" cy="110" r="76" fill="none" stroke-width="28" pathLength="100" stroke-dasharray="0 100"/>`).join("")}</g>${[0,1,2].map(i => `<text class="pie-number" data-cifra-sector="${i}" text-anchor="middle" dominant-baseline="middle"></text>`).join("")}<text class="pie-center" x="110" y="103" text-anchor="middle">6</text><text class="pie-subtitle" x="110" y="122" text-anchor="middle">INDICADORES</text><text class="pie-goal" x="110" y="139" text-anchor="middle"></text></svg>`;
+    document.querySelectorAll("[data-sector-indice]").forEach(sector => {
+      const activar = () => {if (sector.dataset.sector) elegirSectorTorta(sector.dataset.sector);};
+      sector.addEventListener("click", activar);
+      sector.addEventListener("keydown", evento => {if (["Enter", " "].includes(evento.key)) {evento.preventDefault(); activar();}});
+    });
+  }
+  const svg = $("torta").querySelector("svg");
+  svg.setAttribute("aria-label", modelo.indicador ? `${modelo.indicador.nombre}. Referencia ${modelo.indicador.texto}; meta ${modelo.indicador.meta_texto}` : `${modelo.total} indicadores: ${modelo.grupos.map(g => `${g.nombre} ${g.n}`).join(", ")}`);
+  const dibujar = () => {
+    let avance = 0;
+    document.querySelectorAll("[data-sector-indice]").forEach((sector, indice) => {
+      const grupo = modelo.grupos[indice];
+      const porcentaje = grupo && modelo.total ? grupo.n / modelo.total * 100 : 0;
+      const activo = grupo && modelo.activo === grupo.clave;
+      sector.dataset.sector = grupo ? grupo.clave : "";
+      sector.style.stroke = grupo ? grupo.color : "transparent";
+      sector.style.strokeDasharray = `${porcentaje} ${100 - porcentaje}`;
+      sector.style.strokeDashoffset = String(-avance);
+      sector.style.strokeWidth = activo ? "34px" : "28px";
+      sector.style.opacity = grupo && porcentaje ? (modelo.activo && !activo ? ".5" : "1") : "0";
+      sector.setAttribute("tabindex", grupo && porcentaje ? "0" : "-1");
+      sector.setAttribute("aria-hidden", String(!grupo || !porcentaje));
+      sector.setAttribute("aria-pressed", String(Boolean(activo)));
+      sector.setAttribute("aria-label", grupo ? `${grupo.nombre}: ${grupo.formato(grupo.n)}, ${numero.format(porcentaje)}%. Seleccionar sector` : "");
+      const cifra = svg.querySelector(`[data-cifra-sector="${indice}"]`);
+      const angulo = (avance + porcentaje / 2) / 100 * 2 * Math.PI - Math.PI / 2;
+      cifra.style.transform = `translate(${110 + 76 * Math.cos(angulo)}px, ${110 + 76 * Math.sin(angulo)}px)`;
+      cifra.style.opacity = grupo && porcentaje >= 4 ? "1" : "0";
+      cifra.textContent = grupo ? numero.format(grupo.n) : "";
+      avance += porcentaje;
+    });
+  };
+  if (nuevo && !movimientoReducido()) {svg.getBoundingClientRect(); requestAnimationFrame(dibujar);} else dibujar();
+  const activo = modelo.grupos.find(g => g.clave === modelo.activo);
+  const centro = svg.querySelector(".pie-center");
+  if (modelo.valor === null) {
+    if (cuentasTorta.has(centro)) cancelAnimationFrame(cuentasTorta.get(centro));
+    centro.textContent = "—";
+    centro.dataset.numero = "0";
+  } else contarSuave(centro, activo ? activo.n : modelo.valor, activo ? activo.formato : modelo.formato);
+  svg.querySelector(".pie-subtitle").textContent = modelo.valor === null ? "POR MEDIR" : (activo ? activo.nombre : modelo.subtitulo).toUpperCase();
+  svg.querySelector(".pie-goal").textContent = activo ? `${numero.format(activo.n / modelo.total * 100)}% DEL CÍRCULO` : modelo.objetivo;
+  $("leyenda-torta").innerHTML = modelo.grupos.length ? modelo.grupos.map(grupo => `<button type="button" data-estado="${escapar(grupo.clave)}" aria-pressed="${modelo.activo === grupo.clave}"><span class="dot" style="background:${grupo.color}"></span><span>${escapar(grupo.nombre)}</span><strong>${escapar(grupo.formato(grupo.n))}<small>${numero.format(grupo.n / modelo.total * 100)}% del círculo</small></strong></button>`).join("") : '<p class="torta-sin-dato">No hay una referencia medida para comparar con el estándar.</p>';
+  document.querySelectorAll("#leyenda-torta [data-estado]").forEach(boton => boton.addEventListener("click", () => {elegirSectorTorta(boton.dataset.estado); $("leyenda-torta").querySelector(`[data-estado="${boton.dataset.estado}"]`)?.focus({preventScroll:true});}));
+  $("torta-explicacion").textContent = modelo.descripcion;
+  $("torta-accion").textContent = modelo.indicador ? "Comparar este indicador ↗" : "Ver indicadores ↗";
+}
+
+
+function pintarBarras() {
+  const items = datos.filter(d => d.unidad === "%" && d.valor !== null);
+  const modo = $("series-barras").value;
+  const nombres = {repuestos: "Repuestos", vehiculos: "Vehículos nuevos", mercado: "Mercado"};
+  const maximo = Math.max(10, Math.ceil(Math.max(...items.flatMap(d => [d.valor, d.meta])) * 1.15 / 10) * 10);
+  const suelo = 218, altura = 175, izquierda = 42, ancho = 505;
+  let dibujo = "";
+  for (let paso = 0; paso <= 5; paso++) {
+    const y = suelo - altura * paso / 5;
+    dibujo += `<line x1="42" y1="${y}" x2="565" y2="${y}" stroke="#e6edf1" stroke-dasharray="3 4"/><text x="33" y="${y + 3}" text-anchor="end" fill="#748898" font-size="10">${numero.format(maximo * paso / 5)}%</text>`;
+  }
+  items.forEach((d, indice) => {
+    const centro = izquierda + ancho / items.length * (indice + 0.5);
+    dibujo += `<g class="bar-group" role="button" tabindex="0" data-barra="${d.id}" data-centro="${centro}" aria-label="Ver ${escapar(d.nombre)}: referencia ${d.texto}, meta ${d.meta_texto}"><title>${escapar(d.nombre)} · Referencia ${d.texto} · Meta ${d.meta_texto}</title><rect x="${centro - 68}" y="28" width="136" height="225" fill="transparent"/>`;
+    for (const serie of ["referencia", "meta"]) {
+      const valor = serie === "referencia" ? d.valor : d.meta;
+      const h = altura * valor / maximo;
+      const x = centro + (modo === "ambas" ? (serie === "referencia" ? -35 : 5) : -15);
+      dibujo += `<rect class="data-bar" data-serie="${serie}" data-altura="${h}" x="${x}" y="${suelo}" width="30" height="0" rx="4" fill="${serie === "referencia" ? "#087f72" : "#a2cfc4"}"/><text class="bar-number" data-numero="${serie}" x="${x + 15}" y="${suelo - h - 9}" opacity="0" text-anchor="middle" fill="#385a67" font-size="11" font-weight="600">${numero.format(valor)}%</text>`;
+    }
+    dibujo += `<text x="${centro}" y="245" text-anchor="middle" fill="#5e7586" font-size="11">${nombres[d.id] || escapar(d.nombre)}</text></g>`;
+  });
+  const nuevo = !$("barras").querySelector("svg");
+  if (nuevo) $("barras").innerHTML = `<svg class="bar-svg" viewBox="0 0 585 265" aria-label="Referencias y metas en porcentaje; selecciona un indicador para ver el detalle">${dibujo}</svg>`;
+  $("leyenda-referencia").hidden = modo === "meta";
+  $("leyenda-meta").hidden = modo === "referencia";
+  const ajustar = () => document.querySelectorAll("[data-barra]").forEach(grupo => {
+    const centro = Number(grupo.dataset.centro);
+    grupo.querySelectorAll("[data-serie]").forEach(barra => {
+      const serie = barra.dataset.serie;
+      const visible = modo === "ambas" || modo === serie;
+      const h = visible ? Number(barra.dataset.altura) : 0;
+      const x = centro + (modo === "ambas" ? (serie === "referencia" ? -35 : 5) : -15);
+      barra.dataset.visible = String(visible);
+      barra.setAttribute("aria-hidden", String(!visible));
+      barra.style.x = `${x}px`;
+      barra.style.y = `${suelo - h}px`;
+      barra.style.height = `${h}px`;
+      barra.style.width = visible ? "30px" : "0px";
+      barra.style.opacity = visible ? "1" : "0";
+      const etiqueta = grupo.querySelector(`[data-numero="${serie}"]`);
+      etiqueta.setAttribute("aria-hidden", String(!visible));
+      etiqueta.style.transform = `translateX(${x + 15 - Number(etiqueta.getAttribute("x"))}px)`;
+      etiqueta.style.opacity = visible ? "1" : "0";
+    });
+  });
+  if (nuevo) {
+    document.querySelectorAll("[data-barra]").forEach(grupo => {
+      grupo.addEventListener("click", () => abrirDetalle(grupo.dataset.barra));
+      grupo.addEventListener("keydown", evento => {if (["Enter", " "].includes(evento.key)) {evento.preventDefault(); abrirDetalle(grupo.dataset.barra);}});
+    });
+    $("barras").getBoundingClientRect();
+    if (movimientoReducido()) ajustar(); else requestAnimationFrame(ajustar);
+  } else ajustar();
+}
+
+function pintarComparativo() {
+  const d = datos.find(item => item.id === $("comparar").value) || datos[0];
+  textoSuave($("accion-titulo"), d.nombre);
+  textoSuave($("accion-texto"), d.accion);
+  $("abrir-comparado").dataset.id = d.id;
+  const nuevo = !$("comparacion").querySelector(".comparison-bars");
+  if (nuevo) {
+    $("comparacion").innerHTML = `<div class="comparison-bars"><div class="bar-row"><div class="bar-label"><span>Referencia del caso</span><strong data-comparacion="valor"></strong></div><div class="track"><div class="fill" data-fill="valor" style="width:0%"></div></div></div><div class="bar-row"><div class="bar-label"><span data-comparacion="plazo"></span><strong data-comparacion="meta"></strong></div><div class="track"><div class="fill goal" data-fill="meta" style="width:0%"></div></div></div><p class="gap" data-comparacion="brecha"></p></div><div class="missing-comparison" aria-hidden="true"><span class="status pendiente">Sin medición</span><h3>Una referencia por construir</h3><p>Estándar del caso: <strong data-comparacion="estandar"></strong>.</p><p>No se dibuja una barra de resultado porque el caso no informa un valor actual.</p></div>`;
+  }
+  const contenedor = $("comparacion");
+  const pendiente = d.valor === null;
+  contenedor.classList.toggle("is-missing", pendiente);
+  contenedor.querySelector(".comparison-bars").setAttribute("aria-hidden", String(pendiente));
+  contenedor.querySelector(".missing-comparison").setAttribute("aria-hidden", String(!pendiente));
+  for (const [campo, texto] of Object.entries({valor: d.texto, plazo: d.plazo, meta: d.meta_texto, brecha: diferencia(d), estandar: d.meta_texto})) textoSuave(contenedor.querySelector(`[data-comparacion="${campo}"]`), texto);
+  const maximo = Math.max(d.valor || 0, d.meta) * 1.12;
+  const ajustar = () => {
+    contenedor.querySelector('[data-fill="valor"]').style.width = pendiente ? "0%" : `${100 * d.valor / maximo}%`;
+    contenedor.querySelector('[data-fill="meta"]').style.width = pendiente ? "0%" : `${100 * d.meta / maximo}%`;
+  };
+  if (nuevo && !movimientoReducido()) {contenedor.getBoundingClientRect(); requestAnimationFrame(ajustar);} else ajustar();
 }
 
 function abrirDetalle(id) {
   const d = datos.find(item => item.id === id);
+  if (!d) return;
+  detalleActual = id;
   $("detalle-categoria").textContent = d.categoria + " · Detalle";
   $("detalle-titulo").textContent = d.nombre;
   $("detalle-contexto").textContent = d.contexto;
@@ -765,59 +948,59 @@ function abrirDetalle(id) {
   $("detalle").showModal();
 }
 
-document.querySelectorAll("[data-categoria]").forEach(boton => {
-  boton.addEventListener("click", () => {
-    categoria = boton.dataset.categoria;
-    actualizarTabs();
-    pintarTarjetas();
-  });
-});
-
+document.querySelectorAll("[data-categoria]").forEach(boton => boton.addEventListener("click", () => {categoria = boton.dataset.categoria; pintarTarjetas();}));
+document.querySelectorAll("[data-resumen]").forEach(boton => boton.addEventListener("click", () => filtrarEstado(boton.dataset.resumen)));
 $("buscar").addEventListener("input", pintarTarjetas);
-$("filtro-estado").addEventListener("change", pintarTarjetas);
+$("filtro-estado").addEventListener("change", () => {pintarTarjetas(); pintarTorta();});
 $("limpiar").addEventListener("click", limpiar);
-
-$("restablecer")?.addEventListener("click", limpiar);
-$("imprimir")?.addEventListener("click", () => window.print());
-
-$("detalle").querySelector("button")?.addEventListener("click", () => {
+$("restablecer").addEventListener("click", limpiar);
+$("comparar").addEventListener("change", pintarComparativo);
+$("series-barras").addEventListener("change", pintarBarras);
+$("imprimir").addEventListener("click", () => window.print());
+$("abrir-comparado").addEventListener("click", evento => abrirDetalle(evento.currentTarget.dataset.id));
+$("ver-comparacion").addEventListener("click", () => {
   $("detalle").close();
+  $("comparar").value = detalleActual;
+  pintarComparativo();
+  $("comparativo").scrollIntoView({block: "start", behavior: "smooth"});
+  $("comparar").focus({preventScroll: true});
 });
-
-function pintarComparativo() {
-  const selector = $("comparar");
-  const grafico = $("grafico");
-  if (!selector || !grafico) return;
-
-  const d = datos.find(item => item.id === selector.value);
-  if (!d) return;
-
-  if (d.valor === null) {
-    grafico.textContent = "Sin medición actual. Estándar del caso: > 95%.";
-    return;
-  }
-
-  const maximo = Math.max(d.valor, d.meta) * 1.12;
-  grafico.innerHTML = `
-    <p>Referencia del caso: <strong>${d.texto}</strong></p>
-    <div style="height:16px;background:#edf3f5;border-radius:5px;margin:10px 0 20px">
-      <div style="height:100%;width:${d.valor / maximo * 100}%;background:#087f72;border-radius:5px"></div>
-    </div>
-    <p>${d.plazo}: <strong>${d.meta_texto}</strong></p>
-    <div style="height:16px;background:#edf3f5;border-radius:5px;margin:10px 0 20px">
-      <div style="height:100%;width:${d.meta / maximo * 100}%;background:#a2cfc4;border-radius:5px"></div>
-    </div>
-    <p>${diferencia(d)}</p>`;
+$("detalle").addEventListener("click", evento => {
+  const caja = $("detalle").getBoundingClientRect();
+  if (evento.target === $("detalle") && (evento.clientX < caja.left || evento.clientX > caja.right || evento.clientY < caja.top || evento.clientY > caja.bottom)) $("detalle").close();
+});
+const enlaces = [...document.querySelectorAll("nav a")];
+if ("IntersectionObserver" in window) {
+  const observador = new IntersectionObserver(entradas => {
+    const visibles = entradas.filter(e => e.isIntersecting).sort((a,b) => b.intersectionRatio - a.intersectionRatio);
+    if (!visibles.length) return;
+    enlaces.forEach(enlace => {
+      if (enlace.hash === "#" + visibles[0].target.id) enlace.setAttribute("aria-current", "location");
+      else enlace.removeAttribute("aria-current");
+    });
+  }, {rootMargin: "-3% 0px -35% 0px", threshold: [0, 0.25, 0.5]});
+  ["inicio", "graficos", "indicadores", "comparativo"].forEach(id => observador.observe($(id)));
 }
-
-$("comparar")?.addEventListener("change", pintarComparativo);
-
+$("vista-torta").addEventListener("change", () => {seleccionTorta = null; pintarTorta();});
+$("reiniciar-torta").addEventListener("click", () => {seleccionTorta = null; $("vista-torta").value = "estados"; limpiar();});
+$("torta-accion").addEventListener("click", () => {
+  const modelo = modeloTorta();
+  if (modelo.indicador) {
+    $("comparar").value = modelo.indicador.id;
+    pintarComparativo();
+    $("comparativo").scrollIntoView({block: "start", behavior: "smooth"});
+    $("comparar").focus({preventScroll: true});
+  } else {
+    $("indicadores").scrollIntoView({block: "start", behavior: "smooth"});
+    $("indicadores-titulo").focus({preventScroll: true});
+  }
+});
 pintarResumen();
+pintarTarjetas();
 pintarTorta();
 pintarBarras();
-actualizarTabs();
-pintarTarjetas();
 pintarComparativo();
+
 </script>
 </body>
 </html>
@@ -861,3 +1044,4 @@ def descargar():
 
 if __name__ == "__main__":
     app.run()
+
