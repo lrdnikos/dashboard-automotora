@@ -593,7 +593,7 @@ footer{font-size:10px}
 
     <footer>
       <p><strong>AVDM</strong> · Dashboard estratégico</p>
-      <p>Fuente: Caso Automotora Viña del Mar S.A.C. y PDO Integral 1.<br>
+      <p>Fuente: Caso Automotora Viña del Mar S.A.C.<br>
       Horizonte propuesto: 2027 · Consulta académica</p>
     </footer>
 
